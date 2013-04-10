@@ -15,9 +15,9 @@ Rendered output is fully customizable via [Velocity templates](http://velocity.a
 
 ### Build
 
-    > mvn install
-    > cd cli/target
-    > java -jar scms-cli-<version>-cli.jar
+    $ mvn install
+    $ cd cli/target
+    $ java -jar scms-cli-<version>-cli.jar
 
 The last command will show a help menu.
 
