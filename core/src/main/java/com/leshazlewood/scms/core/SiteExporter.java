@@ -24,6 +24,7 @@ import org.pegdown.PegDownProcessor;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
@@ -31,6 +32,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.ListIterator;
 import java.util.Map;
 
@@ -178,6 +180,7 @@ public class SiteExporter implements Runnable {
         return path + ext;
     }
 
+    @SuppressWarnings("unchecked")
     private void recurse(File dir) throws IOException {
 
         File[] files = dir.listFiles();
@@ -185,23 +188,44 @@ public class SiteExporter implements Runnable {
         if (files != null) {
             for (File f : files) {
                 if (isIncluded(f)) {
+
+                    String relPath = getRelativePath(sourceDir, f);
+
                     if (f.isDirectory()) {
-                        String relPath = getRelativePath(sourceDir, f);
                         File copiedDir = new File(destDir, relPath);
                         ensureDirectory(copiedDir);
                         recurse(f);
                     } else {
-                        String relPath = getRelativePath(sourceDir, f);
 
-                        Map<String, Object> patternCfg = (Map<String, Object>) config.get("patterns");
-                        for (Map.Entry<String, Object> patternEntry : patternCfg.entrySet()) {
+                        Map<String,Object> patterns = getValue(config, "patterns", Map.class);
+
+                        boolean rendered = false;
+
+                        for (Map.Entry<String, Object> patternEntry : patterns.entrySet()) {
                             String pattern = patternEntry.getKey();
 
                             if (patternMatcher.matches(pattern, relPath)) {
-                                Map<String, Object> patternConfig = (Map<String, Object>) patternEntry.getValue();
-                                String templatePath = (String) patternConfig.get("template");
 
-                                String extension = (String)patternConfig.get("extension");
+                                Map<String,Object> model = new LinkedHashMap<String,Object>();
+
+                                Map<String,Object> globalModel = getValue(config, "model", Map.class);
+                                append(model, globalModel);
+
+                                Map<String, Object> patternCfg = (Map<String, Object>) patternEntry.getValue();
+
+                                Map<String,Object> patternCfgModel = getValue(patternCfg, "model", Map.class);
+                                append(model, patternCfgModel);
+
+                                String templatePath = (String) patternCfg.get("template");
+                                if (templatePath != null) {
+                                    templatePath = templatePath.trim();
+                                }
+                                if (templatePath == null) {
+                                    String msg = "Required 'template' value is missing for pattern '" + pattern + "'";
+                                    throw new IllegalStateException(msg);
+                                }
+
+                                String extension = (String)patternCfg.get("destFileExtension");
                                 if (extension == null) {
                                     extension = ".html"; //temporary default until this can be configured at the global level.
                                 }
@@ -213,7 +237,6 @@ public class SiteExporter implements Runnable {
                                 String markdown = readFile(f);
                                 String html = pegDownProcessor.markdownToHtml(markdown);
 
-                                Map<String, String> model = new HashMap<String, String>();
                                 model.put("content", html);
                                 VelocityContext ctx = new VelocityContext(model);
 
@@ -222,12 +245,64 @@ public class SiteExporter implements Runnable {
 
                                 velocityEngine.mergeTemplate(templatePath, "UTF-8", ctx, writer);
                                 writer.close();
+
+                                rendered = true;
+                                break;
                             }
+                        }
+
+                        if (!rendered) {
+                            //no pattern matched - just copy the file over:
+                            File destFile = new File(destDir, relPath);
+                            ensureFile(destFile);
+                            copy(f, destFile);
                         }
                     }
                 }
             }
         }
+    }
+
+    private static void append(Map dest, Map src) {
+        if (dest != null && src != null && !src.isEmpty()) {
+            dest.putAll(src);
+        }
+    }
+
+    private static <T> T getValue(Map<String,Object> src, String name, Class<T> type) {
+
+        Object o = src.get(name);
+        if (o == null) {
+            return null;
+        }
+
+        if (!type.isInstance(o)) {
+            String msg = "Configuration property '" + name + "' is expected to be a " + type.getName() + " instance.";
+            throw new IllegalStateException(msg);
+        }
+
+        return type.cast(o);
+    }
+
+    private static void copy(File src, File dest) throws IOException {
+
+        FileChannel source = new FileInputStream(src).getChannel();
+        try {
+            FileChannel destination = new FileOutputStream(dest).getChannel();
+            try {
+                source.transferTo(0, source.size(), destination);
+                // destination.transferFrom(source, 0, source.size());
+            } finally {
+                if (destination != null) {
+                    destination.close();
+                }
+            }
+        } finally {
+            if (source != null) {
+                source.close();
+            }
+        }
+
     }
 
     private static String readFile(File file) throws IOException {
