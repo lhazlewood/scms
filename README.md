@@ -60,9 +60,9 @@ Create a `scms.cfg` file in the root directory of your static website project wi
 This means:
 
 Whenever a Markdown file is encountered in the source directory or any of its children directories,
-(the `**/*.md` Ant-style pattern means any `.md` file in the current directory or any children directories), take
-that file's contents, render it to html, and merge the rendered HTML with the `templates/default.vtl` Velocity template.
-(template file paths are relative to the `.cfg` file.).  We'll cover templates in just a second.
+(the `**/*.md` [Ant-style pattern](http://ant.apache.org/manual/dirtasks.html#patterns) means any `.md` file in the current directory or any children directories), take
+that file's contents, render it to html, and merge the rendered HTML with the `templates/default.vtl` [Velocity](http://velocity.apache.org/engine/devel/user-guide.html) template.
+We'll cover templates in just a second.
 
 Now our project structure looks like this:
 
@@ -115,7 +115,7 @@ root directory:
 
     $ cd mysite
 
-Now render your site.  We'll specify `output` as our destination/output directory, relative to the project root.  SCMS
+Now render your site.  We'll specify `output` as our destination directory, relative to the project root.  SCMS
 will render all output to the `output` directory.  You can specify a different directory if you want the output to be
 somewhere else.  Run this:
 
