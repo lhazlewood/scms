@@ -144,9 +144,10 @@ SCMS will produce a 1:1 recursive copy of the site in your source directory - `m
 directory.  But during that process, it will render all Markdown files as HTML files using the specified Velocity 
 template in `scms.cfg`.
 
-As you can infer from `scms.cfg`, you can have multiple templates: for any Markdown path matching a particular pattern,
-you can apply a specific template for that file path.  Patterns are matched based on a 'first match wins' policy, so more
-specific patterns should be defined before more general patterns.
+As you can infer from `scms.cfg`, you can have multiple templates: for any file matching a particular pattern,
+you can apply a specific template for that file.  Patterns are matched based on a 'first match wins' policy, so more
+specific patterns should be defined before more general patterns.  If a file in the source directory tree does not 
+match a pattern in `scms.cfg`, it is simply copied to the destination directory unchanged.
 
 All that is left now is to learn a little bit of the [Velocity Template Language](http://velocity.apache.org/engine/devel/user-guide.html#Velocity_Template_Language_VTL:_An_Introduction)
 so you can write as many `.vtl` Velocity templates as you want to customize the rendered output (look and feel) of your
