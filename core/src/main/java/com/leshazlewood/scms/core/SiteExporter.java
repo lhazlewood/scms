@@ -76,7 +76,7 @@ public class SiteExporter implements Runnable {
         this.velocityEngine = velocityEngine;
     }
 
-    private void init() throws Exception {
+    public void init() throws Exception {
 
         if (sourceDir == null) {
             sourceDir = new File(System.getProperty("user.dir"));
@@ -106,17 +106,17 @@ public class SiteExporter implements Runnable {
         }
 
         if (configFile == null) {
-            File cfg = new File(sourceDir, "scms.cfg");
-            if (cfg.exists()) {
-                if (cfg.isDirectory()) {
-                    throw new IllegalArgumentException("Expected configuration file " + cfg + " is a directory, not a file.");
-                }
-                configFile = cfg;
-            } else {
-                String msg = "Configuration file not found.  Create a default scms.cfg file in your source directory " +
-                        "or specify the -c option to specify the file location.";
-                throw new IllegalStateException(msg);
+            configFile = new File(sourceDir, "scms.cfg");
+        }
+
+        if (configFile.exists()) {
+            if (configFile.isDirectory()) {
+                throw new IllegalArgumentException("Expected configuration file " + configFile + " is a directory, not a file.");
             }
+        } else {
+            String msg = "Configuration file not found.  Create a default scms.cfg file in your source directory " +
+                    "or configure the configFile property to specify the file location.";
+            throw new IllegalStateException(msg);
         }
 
         config = new ConfigSlurper().parse(configFile.toURI().toURL());
@@ -137,12 +137,16 @@ public class SiteExporter implements Runnable {
         }
     }
 
+    public void execute() throws IOException {
+        recurse(sourceDir);
+    }
+
     @Override
     public void run() {
         try {
             recurse(sourceDir);
         } catch (Exception e) {
-            throw new Error(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -194,10 +198,15 @@ public class SiteExporter implements Runnable {
                             String pattern = patternEntry.getKey();
 
                             if (patternMatcher.matches(pattern, relPath)) {
-                                Map<String, Object> value = (Map<String, Object>) patternEntry.getValue();
-                                String templatePath = (String) value.get("template");
+                                Map<String, Object> patternConfig = (Map<String, Object>) patternEntry.getValue();
+                                String templatePath = (String) patternConfig.get("template");
 
-                                String destFileRelPath = applyExtension(relPath, ".html");
+                                String extension = (String)patternConfig.get("extension");
+                                if (extension == null) {
+                                    extension = ".html"; //temporary default until this can be configured at the global level.
+                                }
+
+                                String destFileRelPath = applyExtension(relPath, extension);
                                 File destFile = new File(destDir, destFileRelPath);
                                 ensureFile(destFile);
 
@@ -205,7 +214,7 @@ public class SiteExporter implements Runnable {
                                 String html = pegDownProcessor.markdownToHtml(markdown);
 
                                 Map<String, String> model = new HashMap<String, String>();
-                                model.put("body", html);
+                                model.put("content", html);
                                 VelocityContext ctx = new VelocityContext(model);
 
                                 FileWriter fw = new FileWriter(destFile);
