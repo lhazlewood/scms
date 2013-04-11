@@ -1,6 +1,6 @@
 # SCMS
 
-SCMS (Simple Content Management System) is file-based CMS - no database required!.  
+SCMS (Simple Content Management System) is file-based CMS - no database required!  
 SCMS primarily exists to support static websites or dynamic sites that achieve their dynamic nature through JavaScript.
 
 SCMS is extraordinarily simple: given a source directory tree full of Markdown files and html fragments, it
