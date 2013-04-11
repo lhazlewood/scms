@@ -13,14 +13,6 @@ or just push it directly to your web servers.  Super easy.
 
 Rendered output is fully customizable via [Velocity templates](http://velocity.apache.org/engine/devel/user-guide.html)
 
-### Build
-
-    $ mvn install
-    $ cd cli/target
-    $ java -jar scms-cli-<version>-cli.jar
-
-The last command will show a help menu.
-
 ## Quickstart
 
 SCMS is a simple command line program that requires Java to generate your site (**note**: the generated site does not 
@@ -182,3 +174,15 @@ All that is left now is to learn a little bit of the [Velocity Template Language
 so you can write as many `.vtl` Velocity templates as you want to customize the rendered output (look and feel) of your
 site.
 
+## Build Instructions
+
+SCMS requires java and [Maven](http://maven.apache.org/) to build:
+
+    $ mvn install
+    
+This will create the SCMS executable scms-cli-<version>-cli.jar file in the `cli/target` directory.  You can run SCMS 
+by using the `java -jar` command:
+
+    $ java -jar cli/target/scms-cli-<version>-cli.jar
+
+The last command will show a help menu with usage instructions.
