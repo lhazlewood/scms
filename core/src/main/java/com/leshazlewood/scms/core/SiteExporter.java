@@ -31,6 +31,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,12 +39,18 @@ import java.util.Map;
  */
 public class SiteExporter implements Runnable {
 
+    public static final String ROOT_CONFIG_SECTION_NAME = "scms";
+    public static final String DEFAULT_CONFIG_FILE_NAME = "config." + ROOT_CONFIG_SECTION_NAME + ".groovy";
+    public static final String DEFAULT_EXCLUDES_ENABLED_NAME = "defaultExcludesEnabled";
+
     private File sourceDir;
     private File destDir;
     private File templatesDir;
     private File configFile;
 
     private ConfigObject config;
+    private Map<String, Object> scmsConfig;
+    private boolean defaultExcludesEnabled = true;
 
     private PatternMatcher patternMatcher;
     private PegDownProcessor pegDownProcessor;
@@ -73,6 +80,7 @@ public class SiteExporter implements Runnable {
         this.velocityEngine = velocityEngine;
     }
 
+    @SuppressWarnings("unchecked")
     public void init() throws Exception {
 
         if (sourceDir == null) {
@@ -99,7 +107,7 @@ public class SiteExporter implements Runnable {
         }
 
         if (configFile == null) {
-            configFile = new File(sourceDir, "scms.cfg");
+            configFile = new File(sourceDir, DEFAULT_CONFIG_FILE_NAME);
         }
 
         if (configFile.exists()) {
@@ -107,12 +115,17 @@ public class SiteExporter implements Runnable {
                 throw new IllegalArgumentException("Expected configuration file " + configFile + " is a directory, not a file.");
             }
         } else {
-            String msg = "Configuration file not found.  Create a default scms.cfg file in your source directory " +
-                    "or set the configFile property.";
+            String msg = "Configuration file not found.  Create a default " + DEFAULT_CONFIG_FILE_NAME +
+                    " file in your source directory or set the configFile property.";
             throw new IllegalStateException(msg);
         }
 
         config = new ConfigSlurper().parse(configFile.toURI().toURL());
+        scmsConfig = getValue(config, ROOT_CONFIG_SECTION_NAME, Map.class);
+
+        if (scmsConfig.containsKey(DEFAULT_EXCLUDES_ENABLED_NAME)) {
+            defaultExcludesEnabled = getValue(scmsConfig, DEFAULT_EXCLUDES_ENABLED_NAME, Boolean.class);
+        }
 
         pegDownProcessor = new PegDownProcessor();
     }
@@ -156,11 +169,42 @@ public class SiteExporter implements Runnable {
         return relPath;
     }
 
+    @SuppressWarnings("unchecked")
     private boolean isIncluded(File f) {
+
+        if (defaultExcludesEnabled && f.equals(configFile)) {
+            return false;
+        }
+
         String absPath = f.getAbsolutePath();
-        return !absPath.startsWith(destDir.getAbsolutePath()) &&
-                !absPath.startsWith(templatesDir.getAbsolutePath()) &&
-                !f.equals(configFile);
+
+        /*if (absPath.startsWith(destDir.getAbsolutePath()) ||
+                absPath.startsWith(templatesDir.getAbsolutePath()) ||
+                f.equals(configFile)) {
+            return false;
+        }*/
+
+        //only forcefully exclude the destDir (we require this so we avoid infinite recursion).
+        //We don't however forcefully exclude the scms config and/or templatesDir in the produced
+        //site in case the user wants to allow site viewers to see this information, e.g.
+        //an open source community site might want to show their config and templates to help others.
+
+        if (absPath.startsWith(destDir.getAbsolutePath())) {
+            return false;
+        }
+
+        //now check excluded patterns:
+        String relPath = getRelativePath(sourceDir, f);
+        List<String> excludes = getValue(scmsConfig, "excludes", List.class);
+        if (excludes != null) {
+            for (String pattern : excludes) {
+                if (patternMatcher.matches(pattern, relPath)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private String applyExtension(String path, String ext) {
@@ -175,80 +219,102 @@ public class SiteExporter implements Runnable {
     private void recurse(File dir) throws IOException {
 
         File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
 
-        if (files != null) {
-            for (File f : files) {
+        for (File f : files) {
+
+            if (f.equals(destDir)) {
+                continue; //don't infinitely recurse
+            }
+
+            String relPath = getRelativePath(sourceDir, f);
+
+            if (f.isDirectory()) {
                 if (isIncluded(f)) {
+                    File copiedDir = new File(destDir, relPath);
+                    ensureDirectory(copiedDir);
+                    recurse(f);
+                }
+            } else {
 
-                    String relPath = getRelativePath(sourceDir, f);
+                Map<String, Object> patterns = getValue(scmsConfig, "patterns", Map.class);
 
-                    if (f.isDirectory()) {
-                        File copiedDir = new File(destDir, relPath);
-                        ensureDirectory(copiedDir);
-                        recurse(f);
-                    } else {
+                boolean rendered = false;
 
-                        Map<String, Object> patterns = getValue(config, "patterns", Map.class);
+                //TODO clean this up and refactor to helper methods.  yuck.
 
-                        boolean rendered = false;
+                for (Map.Entry<String, Object> patternEntry : patterns.entrySet()) {
+                    String pattern = patternEntry.getKey();
 
-                        for (Map.Entry<String, Object> patternEntry : patterns.entrySet()) {
-                            String pattern = patternEntry.getKey();
+                    if (patternMatcher.matches(pattern, relPath)) {
 
-                            if (patternMatcher.matches(pattern, relPath)) {
+                        Map<String, Object> model = new LinkedHashMap<String, Object>();
 
-                                Map<String, Object> model = new LinkedHashMap<String, Object>();
+                        Map<String, Object> globalModel = getValue(scmsConfig, "model", Map.class);
+                        append(model, globalModel);
 
-                                Map<String, Object> globalModel = getValue(config, "model", Map.class);
-                                append(model, globalModel);
+                        Map<String, Object> patternCfg = (Map<String, Object>) patternEntry.getValue();
 
-                                Map<String, Object> patternCfg = (Map<String, Object>) patternEntry.getValue();
+                        Map<String, Object> patternCfgModel = getValue(patternCfg, "model", Map.class);
+                        append(model, patternCfgModel);
 
-                                Map<String, Object> patternCfgModel = getValue(patternCfg, "model", Map.class);
-                                append(model, patternCfgModel);
-
-                                String templatePath = (String) patternCfg.get("template");
-                                if (templatePath != null) {
-                                    templatePath = templatePath.trim();
-                                }
-                                if (templatePath == null) {
-                                    String msg = "Required 'template' value is missing for pattern '" + pattern + "'";
-                                    throw new IllegalStateException(msg);
-                                }
-
-                                String extension = (String) patternCfg.get("destFileExtension");
-                                if (extension == null) {
-                                    extension = ".html"; //temporary default until this can be configured at the global level.
-                                }
-
-                                String destFileRelPath = applyExtension(relPath, extension);
-                                File destFile = new File(destDir, destFileRelPath);
-                                ensureFile(destFile);
-
-                                String markdown = readFile(f);
-                                String html = pegDownProcessor.markdownToHtml(markdown);
-
-                                model.put("content", html);
-                                VelocityContext ctx = new VelocityContext(model);
-
-                                FileWriter fw = new FileWriter(destFile);
-                                BufferedWriter writer = new BufferedWriter(fw);
-
-                                velocityEngine.mergeTemplate(templatePath, "UTF-8", ctx, writer);
-                                writer.close();
-
-                                rendered = true;
-                                break;
-                            }
+                        String templatePath = (String) patternCfg.get("template");
+                        if (templatePath != null) {
+                            templatePath = templatePath.trim();
+                        }
+                        if (templatePath == null) {
+                            String msg = "Required 'template' value is missing for pattern '" + pattern + "'";
+                            throw new IllegalStateException(msg);
                         }
 
-                        if (!rendered) {
-                            //no pattern matched - just copy the file over:
-                            File destFile = new File(destDir, relPath);
-                            ensureFile(destFile);
-                            copy(f, destFile);
+                        String extension = (String) patternCfg.get("destFileExtension");
+                        if (extension == null) {
+                            extension = ".html"; //temporary default until this can be configured at the global level.
                         }
+
+                        String destFileRelPath = applyExtension(relPath, extension);
+                        File destFile = new File(destDir, destFileRelPath);
+                        ensureFile(destFile);
+
+                        String markdown = readFile(f);
+                        String html = pegDownProcessor.markdownToHtml(markdown);
+
+                        model.put("content", html);
+                        VelocityContext ctx = new VelocityContext(model);
+
+                        FileWriter fw = new FileWriter(destFile);
+                        BufferedWriter writer = new BufferedWriter(fw);
+
+                        velocityEngine.mergeTemplate(templatePath, "UTF-8", ctx, writer);
+                        writer.close();
+
+                        rendered = true;
+                        break;
                     }
+                }
+
+                //System.out.println("File: " + f);
+
+                boolean included = isIncluded(f);
+                //System.out.println("\tincluded: " + included);
+                //System.out.println("\trendered: " + rendered);
+
+                boolean copy = !rendered && included;
+                //System.out.println("\tcopy: " + copy);
+
+
+                if (rendered && included && !defaultExcludesEnabled) { //auto exclude the raw content files that are merged with a template.
+                    copy = true;
+                    //System.out.println("\tdefaultExcludesEnabled, copy: " + copy);
+                }
+
+                if (copy) {
+                    //no pattern matched - just copy the file over:
+                    File destFile = new File(destDir, relPath);
+                    ensureFile(destFile);
+                    copy(f, destFile);
                 }
             }
         }
@@ -268,7 +334,8 @@ public class SiteExporter implements Runnable {
         }
 
         if (!type.isInstance(o)) {
-            String msg = "Configuration property '" + name + "' is expected to be a " + type.getName() + " instance.";
+            String msg = "Configuration property '" + name + "' is expected to be a " + type.getName() +
+                    " instance.  Instead a " + o.getClass().getName() + " was discovered.";
             throw new IllegalStateException(msg);
         }
 

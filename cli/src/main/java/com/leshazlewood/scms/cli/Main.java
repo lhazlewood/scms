@@ -31,9 +31,9 @@ import java.io.IOException;
  */
 public class Main {
 
-    private static final String DEFAULT_CONFIG_FILE_NAME = "scms.cfg";
+    private static final String DEFAULT_CONFIG_FILE_NAME = SiteExporter.DEFAULT_CONFIG_FILE_NAME;
 
-    private static final Option CONFIG = new Option("c", "config", true, "read the config file at the specified path. Default is <src_dir>/scms.cfg");
+    private static final Option CONFIG = new Option("c", "config", true, "read the config file at the specified path. Default is <src_dir>/" + DEFAULT_CONFIG_FILE_NAME);
     private static final Option DEBUG = new Option("d", "debug", false, "show additional error (stack trace) information.");
     private static final Option HELP = new Option("help", "help", false, "show this help message.");
 
@@ -93,8 +93,9 @@ public class Main {
                     throw new IllegalArgumentException("Expected configuration file " + configFile + " is a directory, not a file.");
                 }
             } else {
-                String msg = "Configuration file not found.  Create a default scms.cfg file in your source directory " +
-                        "or specify the " + CONFIG + " option to provide the file location.";
+                String msg = "Configuration file not found.  Create a default " + DEFAULT_CONFIG_FILE_NAME +
+                        " file in your source directory or specify the " + CONFIG +
+                        " option to provide the file location.";
                 throw new IllegalStateException(msg);
             }
 

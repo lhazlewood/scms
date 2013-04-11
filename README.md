@@ -47,28 +47,46 @@ The `mysite` directory is the root of our quick website project.  The `templates
 
 ### Configuration
 
-Create a `scms.cfg` file in the root directory of your static website project with the following contents to get started:
+Create a `config.scms.groovy` file in the root directory of your static website project with the following contents to get started:
 
-    patterns {
+    scms {
 
-        '**/*.md' {
-            template = 'templates/default.vtl'
+        excludes = ['templates/**']
+
+        patterns {
+
+            '**/*.md' {
+                template = 'templates/default.vtl'
+            }
+
         }
 
     }
 
-This means:
+Here's what the contents mean:
 
-Whenever a Markdown file is encountered in the source directory or any of its children directories,
-(the `**/*.md` [Ant-style pattern](http://ant.apache.org/manual/dirtasks.html#patterns) means any `.md` file in the current directory or any children directories), take
-that file's contents, render it to html, and merge the rendered HTML with the `templates/default.vtl` [Velocity](http://velocity.apache.org/engine/devel/user-guide.html) template.
-We'll cover templates in just a second.
+- The `scms` block contains smcs-specific configuration.  But because the config file is a `.groovy` file, you could
+  theoretically code whatever you want outside of this block (e.g. if you wanted to do more interesting Groovy code for
+  advanced use cases and then reference objects in the `scms` section).
+- The `excludes` property is a list of [Ant-style patterns](http://ant.apache.org/manual/dirtasks.html#patterns). Any
+  file discovered matching one of these patterns will not be copied by scms and not copied to the resulting site output.
+  The above example shows what most people want: to exclude any scms site templates.
+- The `patterns` block contains one or more Ant-style patterns, each with their own config block to be applied when
+  scms encounters a file matching that pattern.
+
+The above `**/*.md` Ant-style pattern example in the `patterns` block ensures that, whenever a Markdown file is
+encountered in the `mysite` directory or any of its children directories, scms will:
+
+1. Read the Markdown file's contents
+2. Convert those contents from Markdown to HTML
+3. Merge the resulting HTML with the `templates/default.vtl` [Velocity](http://velocity.apache.org/engine/devel/user-guide.html) template.
+   We'll cover templates in just a second.
 
 Now our project structure looks like this:
 
     mysite/
         templates/
-        scms.cfg
+        config.scms.groovy
 
 ### HTML Template
 
@@ -82,16 +100,16 @@ Create a `default.vtl` template file in the `templates` subdirectory with the fo
     </body>
     </html>
 
-This is a Velocity template file (the `.vtl` extension indicates Velocity Template Language).  When scms runs, any 
-encountered Markdown file will be rendered to HTML and then that rendered HTML will replace the `$content` 
-placeholder.
+This is a [Velocity](http://velocity.apache.org/engine/devel/user-guide.html) template file (the `.vtl` extension
+indicates a Velocity Template Language file).  When scms runs, any encountered Markdown file will be
+rendered to HTML and then that rendered HTML will replace the `$content` placeholder.
 
 Now our project structure looks like this:
 
     mysite/
         templates/
             default.vtl
-        scms.cfg
+        config.scms.groovy
 
 ### Our First Content File
 
@@ -107,7 +125,7 @@ Now our project structure looks like this:
         templates/
             default.vtl
         index.md
-        scms.cfg
+        config.scms.groovy
 
 ### Render your site
 
@@ -132,9 +150,23 @@ After you've run this command, you'll see the following directory structure:
         templates/
             default.vtl
         index.md
-        scms.cfg
+        config.scms.groovy
 
-See the new `output` directory with the `index.html` file?  Open it up in your web browser and see your new rendered page!
+See the new `output` directory with the `index.html` file?  Open it up and this is what you'll see:
+
+    <html>
+    <body>
+
+    <h1>Hello World</h1>
+    <p>This is my first SCMS-rendered site!</p>
+
+    </body>
+    </html>
+
+See how the `index.md` file was converted to the `<h1>` and `<p>` content?  And then see how the
+`$content` placeholder in `default.vtl` was replaced with the converted HTML?
+
+This is what SCMS does - simple and sweet.
 
 ### How does this work?
 
@@ -142,12 +174,12 @@ Now that you've gotten your feet wet, here's what is going on:
 
 SCMS will produce a 1:1 recursive copy of the site in your source directory - `mysite` - to your specified destination 
 directory.  But during that process, it will render all Markdown files as HTML files using the specified Velocity 
-template in `scms.cfg`.
+template in `config.scms.groovy`.
 
-As you can infer from `scms.cfg`, you can have multiple templates: for any file matching a particular pattern,
+As you can infer from `config.scms.groovy`, you can have multiple templates: for any file matching a particular pattern,
 you can apply a specific template for that file.  Patterns are matched based on a 'first match wins' policy, so more
 specific patterns should be defined before more general patterns.  If a file in the source directory tree does not 
-match a pattern in `scms.cfg`, it is simply copied to the destination directory unchanged.
+match a pattern in `config.scms.groovy`, it is simply copied to the destination directory unchanged.
 
 All that is left now is to learn a little bit of the [Velocity Template Language](http://velocity.apache.org/engine/devel/user-guide.html#Velocity_Template_Language_VTL:_An_Introduction)
 so you can write as many `.vtl` Velocity templates as you want to customize the rendered output (look and feel) of your
