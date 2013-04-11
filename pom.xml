@@ -33,7 +33,7 @@
     <description>Simple Content Management System</description>
     <inceptionYear>2013</inceptionYear>
 
-    <url>https://github.com/lhazlewood/scms/wiki</url>
+    <url>https://github.com/lhazlewood/scms</url>
 
     <licenses>
         <license>
@@ -47,8 +47,8 @@
         <connection>scm:git:git@github.com:lhazlewood/scms.git</connection>
         <developerConnection>scm:git:git@github.com:lhazlewood/scms.git</developerConnection>
         <url>http://github.com/lhazlewood/scms</url>
-    <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
     <issueManagement>
         <system>GitHub</system>
         <url>http://github.com/lhazlewood/scms/issues</url>
