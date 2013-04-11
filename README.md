@@ -64,13 +64,13 @@ Here's what the contents mean:
 
 - The `scms` block is the top-level 'wrapper' containing all relevant SCMS configuration.
 - The `excludes` property is a list of [Ant-style patterns](http://ant.apache.org/manual/dirtasks.html#patterns). Any
-  file discovered matching one of these patterns will not be copied by scms to the output directory.
+  file discovered matching one of these patterns will not be copied by SCMS to the output directory.
   The above example shows what most people want: to exclude any rendering templates.
 - The `patterns` block contains one or more Ant-style patterns, each with their own config block to be applied when
-  scms encounters a file matching that pattern.
+  SCMS encounters a file matching that pattern.
 
 The above `**/*.md` Ant-style pattern example in the `patterns` block ensures that, whenever a Markdown file is
-encountered in the `mysite` directory or any of its children directories, scms will:
+encountered in the `mysite` directory or any of its children directories, SCMS will:
 
 1. Read the Markdown file's contents
 2. Convert those contents from Markdown to HTML
@@ -96,7 +96,7 @@ Create a `default.vtl` template file in the `templates` subdirectory with the fo
     </html>
 
 This is a [Velocity](http://velocity.apache.org/engine/devel/user-guide.html) template file (the `.vtl` extension
-indicates a Velocity Template Language file).  When scms runs, any encountered Markdown file will be
+indicates a Velocity Template Language file).  When SCMS runs, any encountered Markdown file will be
 rendered to HTML and then that rendered HTML will replace the `$content` placeholder.
 
 Now our project structure looks like this:
