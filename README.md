@@ -15,9 +15,9 @@ Rendered output is fully customizable via [Velocity templates](http://velocity.a
 
 ### Build
 
-    > mvn install
-    > cd cli/target
-    > java -jar scms-cli-<version>-cli.jar
+    $ mvn install
+    $ cd cli/target
+    $ java -jar scms-cli-<version>-cli.jar
 
 The last command will show a help menu.
 
@@ -60,9 +60,9 @@ Create a `scms.cfg` file in the root directory of your static website project wi
 This means:
 
 Whenever a Markdown file is encountered in the source directory or any of its children directories,
-(the `**/*.md` Ant-style pattern means any `.md` file in the current directory or any children directories), take
-that file's contents, render it to html, and merge the rendered HTML with the `templates/default.vtl` Velocity template.
-(template file paths are relative to the `.cfg` file.).  We'll cover templates in just a second.
+(the `**/*.md` [Ant-style pattern](http://ant.apache.org/manual/dirtasks.html#patterns) means any `.md` file in the current directory or any children directories), take
+that file's contents, render it to html, and merge the rendered HTML with the `templates/default.vtl` [Velocity](http://velocity.apache.org/engine/devel/user-guide.html) template.
+We'll cover templates in just a second.
 
 Now our project structure looks like this:
 
@@ -70,7 +70,7 @@ Now our project structure looks like this:
         templates/
         scms.cfg
 
-### Velocity template
+### HTML Template
 
 Create a `default.vtl` template file in the `templates` subdirectory with the following contents:
 
@@ -82,8 +82,9 @@ Create a `default.vtl` template file in the `templates` subdirectory with the fo
     </body>
     </html>
 
-This is a Velocity file template (the `.vtl` extension indicates Velocity Template Language).  When scms runs, any encountered Markdown file will be rendered to HTML and then that
-rendered HTML will be inserted into the `$content` placeholder.
+This is a Velocity template file (the `.vtl` extension indicates Velocity Template Language).  When scms runs, any 
+encountered Markdown file will be rendered to HTML and then that rendered HTML will replace the `$content` 
+placeholder.
 
 Now our project structure looks like this:
 
@@ -110,12 +111,12 @@ Now our project structure looks like this:
 
 ### Render your site
 
-Now that we have our config, a template file and an initial bit of content, we can render our site.  Enter the project
-root directory:
+Now that we have our config, an HTML template and an initial bit of Markdown content, we can render our site.  Enter the 
+project root directory:
 
     $ cd mysite
 
-Now render your site.  We'll specify `output` as our destination/output directory, relative to the project root.  SCMS
+Now render your site.  We'll specify `output` as our destination directory, relative to the project root.  SCMS
 will render all output to the `output` directory.  You can specify a different directory if you want the output to be
 somewhere else.  Run this:
 
@@ -139,12 +140,14 @@ See the new `output` directory with the `index.html` file?  Open it up in your w
 
 Now that you've gotten your feet wet, here's what is going on:
 
-SCMS will produce a 1:1 copy of the site in your source directory - `mysite` and all of its children directories and
-all of their contents - to your specified destination directory.  But during that process, it will render all
-Markdown files as HTML files using the specified Velocity template in `scms.cfg`.
+SCMS will produce a 1:1 recursive copy of the site in your source directory - `mysite` - to your specified destination 
+directory.  But during that process, it will render all Markdown files as HTML files using the specified Velocity 
+template in `scms.cfg`.
 
-As you can infer from `scms.cfg`, you can have multiple templates: for any Markdown path matching a particular pattern,
-you can apply a specific template for that file path.
+As you can infer from `scms.cfg`, you can have multiple templates: for any file matching a particular pattern,
+you can apply a specific template for that file.  Patterns are matched based on a 'first match wins' policy, so more
+specific patterns should be defined before more general patterns.  If a file in the source directory tree does not 
+match a pattern in `scms.cfg`, it is simply copied to the destination directory unchanged.
 
 All that is left now is to learn a little bit of the [Velocity Template Language](http://velocity.apache.org/engine/devel/user-guide.html#Velocity_Template_Language_VTL:_An_Introduction)
 so you can write as many `.vtl` Velocity templates as you want to customize the rendered output (look and feel) of your
