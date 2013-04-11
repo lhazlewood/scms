@@ -54,13 +54,10 @@ Create a `config.scms.groovy` file in the root directory of your static website 
         excludes = ['templates/**']
 
         patterns {
-
             '**/*.md' {
                 template = 'templates/default.vtl'
             }
-
         }
-
     }
 
 Here's what the contents mean:
@@ -166,7 +163,7 @@ See the new `output` directory with the `index.html` file?  Open it up and this 
 See how the `index.md` file was converted to the `<h1>` and `<p>` content?  And then see how the
 `$content` placeholder in `default.vtl` was replaced with the converted HTML?
 
-This is what SCMS does - simple and sweet.
+This is what SCMS does - sweet and simple.
 
 ### How does this work?
 
