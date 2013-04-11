@@ -66,8 +66,8 @@ Here's what the contents mean:
   theoretically code whatever you want outside of this block (e.g. if you wanted to do more interesting Groovy code for
   advanced use cases and then reference objects in the `scms` section).
 - The `excludes` property is a list of [Ant-style patterns](http://ant.apache.org/manual/dirtasks.html#patterns). Any
-  file discovered matching one of these patterns will not be copied by scms and not copied to the resulting site output.
-  The above example shows what most people want: to exclude any scms site templates.
+  file discovered matching one of these patterns will not be copied by scms to the output directory.
+  The above example shows what most people want: to exclude any rendering templates.
 - The `patterns` block contains one or more Ant-style patterns, each with their own config block to be applied when
   scms encounters a file matching that pattern.
 
