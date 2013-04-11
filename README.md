@@ -30,6 +30,16 @@ and you should see something like this:
 
 If you don't see something similar, install Java first and ensure the `java` command is in your `$PATH`.  Ok, moving on...
 
+### Running
+
+SCMS is an executable `.jar` file that can be run by the `java -jar` command.
+
+    $ java -jar cli/target/scms-cli-<version>-cli.jar destination_directory
+
+Where `<VERSION>` is replaced by the SCMS version you're using. 
+
+The above command will show a help menu with further usage instructions.
+
 ### Directory Structure
 
 Create a quick directory structure like the following on your file system.  This will be our quick starter project:
@@ -168,7 +178,9 @@ files as HTML files using the specified Velocity template(s) in `config.scms.gro
 As you can infer from `config.scms.groovy`, you can have multiple templates: for any file matching a particular pattern,
 you can apply a specific template for that file.  Patterns are matched based on a 'first match wins' policy, so more
 specific patterns should be defined before more general patterns.  If a file in the source directory tree does not 
-match a pattern in `config.scms.groovy`, it is simply copied to the destination directory unchanged.
+match a pattern in `config.scms.groovy`, it is simply copied to the destination directory unchanged.  Any file that you
+don't want copied to the destination directory should have a path that matches one of the String patterns in the 
+`excludes` array.
 
 All that is left now is to learn a little bit of the [Velocity Template Language](http://velocity.apache.org/engine/devel/user-guide.html#Velocity_Template_Language_VTL:_An_Introduction)
 so you can write as many `.vtl` Velocity templates as you want to customize the rendered output (look and feel) of your
