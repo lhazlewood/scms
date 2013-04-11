@@ -1,7 +1,7 @@
 # SCMS
 
-SCMS (Simple Content Management System) is an extremely simple tool that exists to support static (or mostly static)
-websites (or dynamic sites that achieve their dynamic nature mostly through JavaScript).
+SCMS (Simple Content Management System) is file-based CMS - no database required!.  
+SCMS primarily exists to support static websites or dynamic sites that achieve their dynamic nature through JavaScript.
 
 SCMS is extraordinarily simple: given a source directory tree full of Markdown files and html fragments, it
 generates a new 1-to-1 directory tree with fully rendered HTML files.  It is expected that you will manage your content
@@ -23,7 +23,10 @@ The last command will show a help menu.
 
 ## Quickstart
 
-SCMS requires a Java runtime. Ensure you have Java installed by running the following command:
+SCMS is a simple command line program that requires Java to generate your site (**note**: the generated site does not 
+require Java or any other programming language).
+
+Check to see if you have Java installed by running the following command at a terminal prompt:
 
     $ java -version
 
@@ -33,7 +36,7 @@ and you should see something like this:
     Java(TM) SE Runtime Environment (build 1.6.0_43-b01-447-11M4203)
     Java HotSpot(TM) 64-Bit Server VM (build 20.14-b01-447, mixed mode)
 
-If you don't see this, install Java first.  Ok, moving on...
+If you don't see something similar, install Java first and ensure the `java` command is in your `$PATH`.  Ok, moving on...
 
 ### Directory Structure
 
@@ -43,7 +46,6 @@ Create a quick directory structure like the following on your file system.  This
         templates/
 
 The `mysite` directory is the root of our quick website project.  The `templates` directory is a sub directory.
-
 
 ### Configuration
 
