@@ -5,10 +5,10 @@ SCMS exists to support static websites or dynamic sites that achieve their dynam
 
 SCMS is extraordinarily simple: given a source directory tree full of Markdown files and html fragments, it
 generates a new 1-to-1 directory tree with fully rendered HTML files.  It is expected that you will manage your content
-(markdown files, images, etc) using a version control system (for example, git).
+(markdown files, images, etc) using a version control system like Git or Subversion.
 
-When it comes time to preview your changes in HTML or publish your site to web servers,  you run a simple SCMS command
-line script to render your web site.  You can take the resulting directory tree and either commit to to version control
+When it comes time to preview your changes in HTML or publish your site to web servers, you run a simple SCMS command
+line script to render your web site.  You can take the resulting directory tree and either commit it to version control
 or just push it directly to your web servers.  Super easy.
 
 Rendered output is fully customizable via [Velocity templates](http://velocity.apache.org/engine/devel/user-guide.html)
