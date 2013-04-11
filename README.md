@@ -137,7 +137,7 @@ somewhere else.  Run this:
 
     $ java -jar scms-cli-<VERSION>-cli.jar output
 
-Where <VERSION> is replaced by the SCMS version you're using.
+Where `<VERSION>` is replaced by the SCMS version you're using.
 
 After you've run this command, you'll see the following directory structure:
 
@@ -169,9 +169,9 @@ This is what SCMS does - sweet and simple.
 
 Now that you've gotten your feet wet, here's what is going on:
 
-SCMS will produce a 1:1 recursive copy of the site in your source directory - `mysite` - to your specified destination 
-directory.  But during that process, it will render all Markdown files as HTML files using the specified Velocity 
-template in `config.scms.groovy`.
+SCMS will produce a 1:1 recursive copy of the site in your source directory (the `mysite` directory above) to your 
+specified destination directory (the `output` directory above).  But during that process, it will render all Markdown 
+files as HTML files using the specified Velocity template(s) in `config.scms.groovy`.
 
 As you can infer from `config.scms.groovy`, you can have multiple templates: for any file matching a particular pattern,
 you can apply a specific template for that file.  Patterns are matched based on a 'first match wins' policy, so more
