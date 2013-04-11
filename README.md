@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/lhazlewood/scms.png)](https://travis-ci.org/lhazlewood/scms)
 # SCMS
 
 SCMS (Simple Content Management System) is file-based CMS - no database required!  
