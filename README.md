@@ -15,8 +15,8 @@ Rendered output is fully customizable via [Velocity templates](http://velocity.a
 
 ## Quickstart
 
-SCMS is a simple command line program that requires Java to generate your site (**note**: the generated site does not 
-require Java or any other programming language).
+SCMS is a simple command line program that requires Java to generate your site. **Note**: the generated site does not 
+require Java or any other programming language.
 
 Check to see if you have Java installed by running the following command at a terminal prompt:
 
