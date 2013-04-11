@@ -63,7 +63,7 @@ Create a `config.scms.groovy` file in the root directory of your static website 
 Here's what the contents mean:
 
 - The `scms` block is the top-level 'wrapper' containing all relevant SCMS configuration.
-- The `excludes` property is a list of [Ant-style patterns](http://ant.apache.org/manual/dirtasks.html#patterns). Any
+- The `excludes` property is a comma-delimited list of [Ant-style pattern](http://ant.apache.org/manual/dirtasks.html#patterns) strings. Any
   file discovered matching one of these patterns will **not** be copied by SCMS to the output directory.
   The above example shows what most people want: to exclude any rendering templates.
 - The `patterns` block contains one or more Ant-style patterns, each with their own config block to be applied when
