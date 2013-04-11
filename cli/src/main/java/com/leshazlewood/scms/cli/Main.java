@@ -94,7 +94,7 @@ public class Main {
                 }
             } else {
                 String msg = "Configuration file not found.  Create a default scms.cfg file in your source directory " +
-                        "or specify the -c option to specify the file location.";
+                        "or specify the " + CONFIG + " option to provide the file location.";
                 throw new IllegalStateException(msg);
             }
 
@@ -143,7 +143,7 @@ public class Main {
         System.out.println();
 
         System.out.println("Usage:");
-        System.out.print("    ");
+        System.out.print("  ");
         System.out.println(command);
         System.out.println();
         System.out.println("Description:");
@@ -200,7 +200,6 @@ public class Main {
                 System.out.println("Error: ");
                 e.printStackTrace(System.out);
                 System.out.println(e.getMessage());
-
             } else {
                 System.out.println("Error: " + e.getMessage());
                 System.out.println();

@@ -30,10 +30,7 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.ListIterator;
 import java.util.Map;
 
 /**
@@ -51,8 +48,6 @@ public class SiteExporter implements Runnable {
     private PatternMatcher patternMatcher;
     private PegDownProcessor pegDownProcessor;
     private VelocityEngine velocityEngine;
-    private VelocityEngineFactory velocityEngineFactory;
-
 
     public SiteExporter() {
         this.patternMatcher = new AntPathMatcher();
@@ -100,11 +95,7 @@ public class SiteExporter implements Runnable {
         ensureDirectory(templatesDir);
 
         if (velocityEngine == null) {
-            if (velocityEngineFactory != null) {
-                velocityEngine = velocityEngineFactory.createVelocityEngine();
-            } else {
-                velocityEngine = new DefaultVelocityEngineFactory(sourceDir, templatesDir).createVelocityEngine();
-            }
+            velocityEngine = new DefaultVelocityEngineFactory(sourceDir, templatesDir).createVelocityEngine();
         }
 
         if (configFile == null) {
@@ -117,7 +108,7 @@ public class SiteExporter implements Runnable {
             }
         } else {
             String msg = "Configuration file not found.  Create a default scms.cfg file in your source directory " +
-                    "or configure the configFile property to specify the file location.";
+                    "or set the configFile property.";
             throw new IllegalStateException(msg);
         }
 
@@ -126,7 +117,7 @@ public class SiteExporter implements Runnable {
         pegDownProcessor = new PegDownProcessor();
     }
 
-    private static void ensureDirectory(File f) throws IOException {
+    private void ensureDirectory(File f) throws IOException {
         if (f.exists()) {
             if (!f.isDirectory()) {
                 throw new IllegalArgumentException("Specified file " + f + " is not a directory.");
@@ -197,7 +188,7 @@ public class SiteExporter implements Runnable {
                         recurse(f);
                     } else {
 
-                        Map<String,Object> patterns = getValue(config, "patterns", Map.class);
+                        Map<String, Object> patterns = getValue(config, "patterns", Map.class);
 
                         boolean rendered = false;
 
@@ -206,14 +197,14 @@ public class SiteExporter implements Runnable {
 
                             if (patternMatcher.matches(pattern, relPath)) {
 
-                                Map<String,Object> model = new LinkedHashMap<String,Object>();
+                                Map<String, Object> model = new LinkedHashMap<String, Object>();
 
-                                Map<String,Object> globalModel = getValue(config, "model", Map.class);
+                                Map<String, Object> globalModel = getValue(config, "model", Map.class);
                                 append(model, globalModel);
 
                                 Map<String, Object> patternCfg = (Map<String, Object>) patternEntry.getValue();
 
-                                Map<String,Object> patternCfgModel = getValue(patternCfg, "model", Map.class);
+                                Map<String, Object> patternCfgModel = getValue(patternCfg, "model", Map.class);
                                 append(model, patternCfgModel);
 
                                 String templatePath = (String) patternCfg.get("template");
@@ -225,7 +216,7 @@ public class SiteExporter implements Runnable {
                                     throw new IllegalStateException(msg);
                                 }
 
-                                String extension = (String)patternCfg.get("destFileExtension");
+                                String extension = (String) patternCfg.get("destFileExtension");
                                 if (extension == null) {
                                     extension = ".html"; //temporary default until this can be configured at the global level.
                                 }
@@ -263,13 +254,13 @@ public class SiteExporter implements Runnable {
         }
     }
 
-    private static void append(Map dest, Map src) {
+    private void append(Map dest, Map src) {
         if (dest != null && src != null && !src.isEmpty()) {
             dest.putAll(src);
         }
     }
 
-    private static <T> T getValue(Map<String,Object> src, String name, Class<T> type) {
+    private <T> T getValue(Map<String, Object> src, String name, Class<T> type) {
 
         Object o = src.get(name);
         if (o == null) {
@@ -284,7 +275,7 @@ public class SiteExporter implements Runnable {
         return type.cast(o);
     }
 
-    private static void copy(File src, File dest) throws IOException {
+    private void copy(File src, File dest) throws IOException {
 
         FileChannel source = new FileInputStream(src).getChannel();
         try {
@@ -302,10 +293,9 @@ public class SiteExporter implements Runnable {
                 source.close();
             }
         }
-
     }
 
-    private static String readFile(File file) throws IOException {
+    private String readFile(File file) throws IOException {
         FileInputStream stream = new FileInputStream(file);
         try {
             FileChannel fc = stream.getChannel();
@@ -317,7 +307,7 @@ public class SiteExporter implements Runnable {
         }
     }
 
-    private static void ensureFile(File f) throws IOException {
+    private void ensureFile(File f) throws IOException {
         if (f.exists()) {
             if (f.isDirectory()) {
                 throw new IllegalStateException("File " + f + " was expected to be a file, not a directory.");
@@ -327,35 +317,5 @@ public class SiteExporter implements Runnable {
 
         f.getParentFile().mkdirs();
         f.createNewFile();
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        SiteExporter exporter = new SiteExporter();
-
-        ListIterator<String> it = Arrays.asList(args).listIterator();
-
-        while (it.hasNext()) {
-            String s = it.next();
-            if ("-d".equals(s)) {
-                File outputDir = new File(it.next());
-                exporter.setDestDir(outputDir);
-            } else if ("-c".equals(s)) {
-                File configFile = new File(it.next());
-                if (!configFile.exists()) {
-                    throw new IllegalArgumentException("Config file does not exist: " + configFile);
-                }
-                if (configFile.isDirectory()) {
-                    throw new IllegalArgumentException("Specified config file is a directory and not a file: " + configFile);
-                }
-                exporter.setConfigFile(configFile);
-            }
-        }
-
-        exporter.init();
-
-        Thread t = new Thread(exporter);
-        t.start();
-        t.join();
     }
 }
