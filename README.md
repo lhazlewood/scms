@@ -199,7 +199,7 @@ site.
 
 ## Build Instructions
 
-SCMS requires java and [Maven](http://maven.apache.org/) to build:
+SCMS requires [Java 1.6](http://www.oracle.com/technetwork/java/javase/downloads/index.html) and [Maven 3](http://maven.apache.org/) to build:
 
     $ mvn install
     
