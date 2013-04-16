@@ -30,9 +30,13 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
 
 /**
  * @since 0.1
@@ -42,6 +46,10 @@ public class SiteExporter implements Runnable {
     public static final String ROOT_CONFIG_SECTION_NAME = "scms";
     public static final String DEFAULT_CONFIG_FILE_NAME = "config." + ROOT_CONFIG_SECTION_NAME + ".groovy";
     public static final String DEFAULT_EXCLUDES_ENABLED_NAME = "defaultExcludesEnabled";
+
+    private static final String METADATA_DELIMITER = "\n\n";
+    private static final String METADATA_DELIMITER_REGEX = "\\n[ \\t\\x0B\\f\\r]*\\n"; //newline -> zero or more non-newline-whitespace chars -> newline
+    private static final String METADATA_KV_PAIR_DELIMITER = ":";
 
     private File sourceDir;
     private File destDir;
@@ -279,6 +287,8 @@ public class SiteExporter implements Runnable {
                         ensureFile(destFile);
 
                         String markdown = readFile(f);
+                        markdown = stripMetadata(markdown, model);
+
                         String html = pegDownProcessor.markdownToHtml(markdown);
 
                         model.put("content", html);
@@ -304,7 +314,6 @@ public class SiteExporter implements Runnable {
                 boolean copy = !rendered && included;
                 //System.out.println("\tcopy: " + copy);
 
-
                 if (rendered && included && !defaultExcludesEnabled) { //auto exclude the raw content files that are merged with a template.
                     copy = true;
                     //System.out.println("\tdefaultExcludesEnabled, copy: " + copy);
@@ -316,6 +325,68 @@ public class SiteExporter implements Runnable {
                     ensureFile(destFile);
                     copy(f, destFile);
                 }
+            }
+        }
+    }
+
+    protected String stripMetadata(String markdown, Map<String,Object> model) {
+        if (model == null) {
+            throw new IllegalArgumentException("model argument cannot be null.");
+        }
+
+        Scanner scanner = new Scanner(markdown);
+        int lineCount = 0;
+        int charCount = 0; //counter for determining where to cut the metadata from non-metadata
+
+        String key = null;
+        List<String> value = new ArrayList<String>();
+
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            lineCount++;
+            charCount += line.length() + 1; //+1 is to account for the newline character that the scanner stripped
+            line = line.trim();
+
+            if (lineCount == 1) {
+                if (line.equals("") || !line.contains(METADATA_KV_PAIR_DELIMITER)) {
+                    //does not conform to Markdown Metadata expectations:
+                    // - cannot be any blank lines above first line of content
+                    // - first line of content must be a ':' delimited key/value pair
+                    return markdown;
+                }
+            } else { //2nd line or more
+                if ("".equals(line)) {
+                    //we found the end of metadata - add last key/value pair and stop looping:
+                    applyValue(model, key, value);
+                    break;
+                }
+            }
+
+            int index = line.indexOf(METADATA_KV_PAIR_DELIMITER);
+            if (index > 0) {
+                applyValue(model, key, value);
+                key = line.substring(0, index).trim();
+                String valueString = line.substring(index+1).trim();
+                value = new ArrayList<String>();
+                value.add(valueString);
+            } else {
+                value.add(line);
+            }
+        }
+
+        if (charCount < markdown.length()) {
+            return markdown.substring(charCount).trim();
+        }
+
+        return markdown;
+    }
+
+    private void applyValue(Map<String,Object> model, String key, List<String> value) {
+        if (key != null && value != null && !value.isEmpty()) {
+            if (value.size() == 1) {
+                model.put(key, value.get(0));
+            } else {
+                model.put(key, value);
             }
         }
     }
