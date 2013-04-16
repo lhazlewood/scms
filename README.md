@@ -16,8 +16,8 @@ Rendered output is fully customizable via [Velocity templates](http://velocity.a
 
 ## Quickstart
 
-SCMS is a simple command line program that requires Java to generate your site. **Note**: the generated site does not 
-require Java or any other programming language.
+SCMS is a simple command line program that requires Java to run ( **Note** : the generated site does not 
+require Java or any other programming language).
 
 Check to see if you have Java installed by running the following command at a terminal prompt:
 
@@ -31,13 +31,25 @@ and you should see something like this:
 
 If you don't see something similar, install Java first and ensure the `java` command is in your `$PATH`.  Ok, moving on...
 
+### Install SCMS
+
+Download the SCMS distribution .zip file (i.e. scms-&lt;VERSION&gt;.zip) and unzip it.  Add the resulting `bin` directory
+to your `$PATH` environment variable.  For example, on Unix, Linux and Mac OS X*:
+
+    $ unzip scms-<VERSION>.zip
+    $ export PATH=scms-<VERSION>/bin:$PATH
+
+where `<VERSION>` is replaced by the SCMS version you're using.  It is recommended that you set this in 
+`~/.bash_profile` so it works for you any time you open a new terminal prompt.
+
+*Windows users can set their PATH via [these instructions](http://www.computerhope.com/issues/ch000549.htm)
+
 ### Running
 
-SCMS is an executable `.jar` file that can be run by the `java -jar` command.
+SCMS is simple command-line program.  Once you add the SCMS `bin` directory to your path, you can run it by 
+simply typing `scms` on the command line:
 
-    $ java -jar cli/target/scms-cli-<version>-cli.jar destination_directory
-
-Where `<VERSION>` is replaced by the SCMS version you're using. 
+    $ scms
 
 The above command will show a help menu with further usage instructions.
 
@@ -138,9 +150,7 @@ Now render your site.  We'll specify `output` as our destination directory, rela
 will render all output to the `output` directory.  You can specify a different directory if you want the output to be
 somewhere else.  Run this:
 
-    $ java -jar scms-cli-<VERSION>-cli.jar output
-
-Where `<VERSION>` is replaced by the SCMS version you're using.
+    $ scms output
 
 After you've run this command, you'll see the following directory structure:
 
@@ -193,9 +203,5 @@ SCMS requires java and [Maven](http://maven.apache.org/) to build:
 
     $ mvn install
     
-This will create the SCMS executable scms-cli-<version>-cli.jar file in the `cli/target` directory.  You can run SCMS 
-by using the `java -jar` command:
-
-    $ java -jar cli/target/scms-cli-<version>-cli.jar
-
-The last command will show a help menu with usage instructions.
+This will create the SCMS distribution .zip file in the `dist/target` directory.  You can unzip the zip file and run 
+the `bin/scms` script as explained at the top of this document.
