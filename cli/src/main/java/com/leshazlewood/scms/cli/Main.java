@@ -16,12 +16,14 @@
 package com.leshazlewood.scms.cli;
 
 import com.leshazlewood.scms.core.SiteExporter;
+import com.leshazlewood.scms.core.Version;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.cli.UnrecognizedOptionException;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,13 +38,14 @@ public class Main {
     private static final Option CONFIG = new Option("c", "config", true, "read the config file at the specified path. Default is <src_dir>/" + DEFAULT_CONFIG_FILE_NAME);
     private static final Option DEBUG = new Option("d", "debug", false, "show additional error (stack trace) information.");
     private static final Option HELP = new Option("help", "help", false, "show this help message.");
+    private static final Option VERSION = new Option("version", "version", false, "display the SCMS and Java versions");
 
     public static void main(String[] args) throws Exception {
 
         CommandLineParser parser = new PosixParser();
 
         Options options = new Options();
-        options.addOption(CONFIG).addOption(DEBUG).addOption(HELP);
+        options.addOption(CONFIG).addOption(DEBUG).addOption(HELP).addOption(VERSION);
 
         boolean debug = false;
         File sourceDir = toFile(System.getProperty("user.dir"));
@@ -52,6 +55,9 @@ public class Main {
         try {
             CommandLine line = parser.parse(options, args);
 
+            if (line.hasOption(VERSION.getOpt())) {
+                printVersionAndExit();
+            }
             if (line.hasOption(HELP.getOpt())) {
                 printHelpAndExit(options, null, debug, 0);
             }
@@ -110,9 +116,15 @@ public class Main {
             exit(iae, debug);
         } catch (IllegalStateException ise) {
             exit(ise, debug);
-        } catch (IOException e) {
+        } catch (Exception e) {
             printHelpAndExit(options, e, debug, -1);
         }
+    }
+
+    private static void printVersionAndExit() {
+        System.out.println("SCMS Version: " + Version.getVersion() + "\n" +
+                           "JVM Version : " + System.getProperty("java.version"));
+        System.exit(0);
     }
 
     private static void printHelpAndExit(Options options, Exception e, boolean debug, int exitCode) {
@@ -128,10 +140,10 @@ public class Main {
     private static void printHelp(Options options, Exception e, boolean debug) {
         HelpFormatter help = new HelpFormatter();
         help.setWidth(80);
-        String command = "java -jar scms-cli-<version>-cli.jar [options] [src dir] dest_dir";
+        String command = "scms [options] [src_dir] dest_dir";
         String header = "Injests content files in [src dir] and renders a static website into dest_dir.\n\n" +
-                "  If unspecified, [src dir] defaults to the current working directory.  dest_dir is required and " +
-                "cannot be the same as the source directory.";
+                "  [src_dir] is optional and defaults to the current working directory.\n" +
+                "  dest_dir is required and cannot be the same as src_dir.";
         /*String footer = "\n" +
                 "Injests source content files and page templates in [src dir] and renders a\n" +
                 "renders a static website into destination_directory.\n\n" +

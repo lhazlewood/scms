@@ -32,11 +32,9 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 /**
  * @since 0.1
@@ -47,8 +45,6 @@ public class SiteExporter implements Runnable {
     public static final String DEFAULT_CONFIG_FILE_NAME = "config." + ROOT_CONFIG_SECTION_NAME + ".groovy";
     public static final String DEFAULT_EXCLUDES_ENABLED_NAME = "defaultExcludesEnabled";
 
-    private static final String METADATA_DELIMITER = "\n\n";
-    private static final String METADATA_DELIMITER_REGEX = "\\n[ \\t\\x0B\\f\\r]*\\n"; //newline -> zero or more non-newline-whitespace chars -> newline
     private static final String METADATA_KV_PAIR_DELIMITER = ":";
 
     private File sourceDir;
@@ -56,7 +52,6 @@ public class SiteExporter implements Runnable {
     private File templatesDir;
     private File configFile;
 
-    private ConfigObject config;
     private Map<String, Object> scmsConfig;
     private boolean defaultExcludesEnabled = true;
 
@@ -128,7 +123,7 @@ public class SiteExporter implements Runnable {
             throw new IllegalStateException(msg);
         }
 
-        config = new ConfigSlurper().parse(configFile.toURI().toURL());
+        ConfigObject config = new ConfigSlurper().parse(configFile.toURI().toURL());
         scmsConfig = getValue(config, ROOT_CONFIG_SECTION_NAME, Map.class);
 
         if (scmsConfig.containsKey(DEFAULT_EXCLUDES_ENABLED_NAME)) {
@@ -329,7 +324,7 @@ public class SiteExporter implements Runnable {
         }
     }
 
-    protected String stripMetadata(String markdown, Map<String,Object> model) {
+    protected String stripMetadata(String markdown, Map<String, Object> model) {
         if (model == null) {
             throw new IllegalArgumentException("model argument cannot be null.");
         }
@@ -366,7 +361,7 @@ public class SiteExporter implements Runnable {
             if (index > 0) {
                 applyValue(model, key, value);
                 key = line.substring(0, index).trim();
-                String valueString = line.substring(index+1).trim();
+                String valueString = line.substring(index + 1).trim();
                 value = new ArrayList<String>();
                 value.add(valueString);
             } else {
@@ -381,7 +376,7 @@ public class SiteExporter implements Runnable {
         return markdown;
     }
 
-    private void applyValue(Map<String,Object> model, String key, List<String> value) {
+    private void applyValue(Map<String, Object> model, String key, List<String> value) {
         if (key != null && value != null && !value.isEmpty()) {
             if (value.size() == 1) {
                 model.put(key, value.get(0));
