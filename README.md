@@ -1,23 +1,26 @@
 [![Build Status](https://travis-ci.org/lhazlewood/scms.png)](https://travis-ci.org/lhazlewood/scms)
 # SCMS
 
-SCMS (Simple Content Management System) is file-based CMS - no database required!  
+SCMS (Simple Content Management System) is very simple file-based CMS - no database required!  
 SCMS exists to support static websites or dynamic sites that achieve their dynamic nature through JavaScript.
 
-SCMS is extraordinarily simple: given a source directory tree full of Markdown files and html fragments, it
-generates a new 1-to-1 directory tree with fully rendered HTML files.  It is expected that you will manage your content
-(markdown files, images, etc) using a version control system like Git or Subversion.
+SCMS is extraordinarily simple: given a source directory tree of Markdown and html content files, it applies one
+or more page templates to the content, resulting in a new 1-to-1 directory tree with fully rendered 
+HTML files.  It is expected that you will manage your content (markdown files, images, etc) using a version control 
+system like Git or Subversion.
 
-When it comes time to preview your changes in HTML or publish your site to web servers, you run a simple SCMS command
-line script to render your web site.  You can take the resulting directory tree and either commit it to version control
-or just push it directly to your web servers.  Super easy.
+When it comes time to preview your changes as complete HTML or publish your site to web servers, you run a simple SCMS 
+command line script to render your web site.  You can take the resulting directory tree and either commit it to version \
+control or just push it directly to your web servers.  Super easy.
 
-Rendered output is fully customizable via [Velocity templates](http://velocity.apache.org/engine/devel/user-guide.html)
+Resulting output is fully customizable via [Velocity templates](http://velocity.apache.org/engine/devel/user-guide.html)
 
 ## Quickstart
 
-SCMS is a simple command line program that requires Java to run ( **Note** : the generated site does not 
-require Java or any other programming language).
+### Prerequisites
+
+SCMS is a Java-based command line program.  You do **not** need to know anything about Java and the generated
+site does not require Java.  Java is _only_ needed to execute the scms command line script.
 
 Check to see if you have Java installed by running the following command at a terminal prompt:
 
@@ -29,24 +32,29 @@ and you should see something like this:
     Java(TM) SE Runtime Environment (build 1.6.0_43-b01-447-11M4203)
     Java HotSpot(TM) 64-Bit Server VM (build 20.14-b01-447, mixed mode)
 
-If you don't see something similar, install Java first and ensure the `java` command is in your `$PATH`.  Ok, moving on...
+If you don't see something similar, [install Java](http://java.com/en/download/index.jsp) first and ensure the `java` 
+command is in your `$PATH`.  Ok, moving on...
+
+### Download SCMS
+
+You may [download the latest stable SCMS version](http://repo.maven.apache.org/maven2/com/leshazlewood/scms/scms/0.1.0/scms-0.1.0.zip) from Maven Central.
 
 ### Install SCMS
 
-Download the SCMS distribution .zip file (i.e. scms-&lt;VERSION&gt;.zip) and unzip it.  Add the resulting `bin` directory
-to your `$PATH` environment variable.  For example, on Unix, Linux and Mac OS X*:
+Unzip the SCMS distribution .zip file (e.g. scms-0.1.0.zip).  Add the resulting `scms-0.1.0/bin` directory
+to your `PATH` environment variable.  For example, on Unix, Linux and Mac OS X*:
 
-    $ unzip scms-<VERSION>.zip
-    $ export PATH=scms-<VERSION>/bin:$PATH
+    $ unzip scms-0.1.0.zip
+    $ export PATH=scms-0.1.0/bin:$PATH
 
-where `<VERSION>` is replaced by the SCMS version you're using.  It is recommended that you set this in 
-`~/.bash_profile` so it works for you any time you open a new terminal prompt.
+It is recommended that you set this in `~/.bash_profile` so you don't have to do this manually every time you open 
+a new terminal prompt.
 
 *Windows users can set their PATH via [these instructions](http://www.computerhope.com/issues/ch000549.htm)
 
-### Running
+### Run SCMS
 
-SCMS is simple command-line program.  Once you add the SCMS `bin` directory to your path, you can run it by 
+Once you add the SCMS `bin` directory to your path, you can run it by 
 simply typing `scms` on the command line:
 
     $ scms
@@ -136,8 +144,8 @@ Now our project structure looks like this:
     mysite/
         templates/
             default.vtl
-        index.md
         config.scms.groovy
+        index.md
 
 ### Render your site
 
@@ -159,8 +167,8 @@ After you've run this command, you'll see the following directory structure:
             index.html
         templates/
             default.vtl
-        index.md
         config.scms.groovy
+        index.md
 
 See the new `output` directory with the `index.html` file?  Open it up and this is what you'll see:
 
@@ -187,8 +195,8 @@ specified destination directory (the `output` directory above).  But during that
 files as HTML files using the specified Velocity template(s) in `config.scms.groovy`.
 
 As you can infer from `config.scms.groovy`, you can have multiple templates: for any file matching a particular pattern,
-you can apply a specific template for that file.  Patterns are matched based on a 'first match wins' policy, so more
-specific patterns should be defined before more general patterns.  If a file in the source directory tree does not 
+you can apply a specific template for that pattern.  Patterns are matched based on a 'first match wins' policy, so more
+specific patterns must be defined before more general patterns.  If a file in the source directory tree does not 
 match a pattern in `config.scms.groovy`, it is simply copied to the destination directory unchanged.  Any file that you
 don't want copied to the destination directory should have a path that matches one of the String patterns in the 
 `excludes` array.
@@ -198,6 +206,8 @@ so you can write as many `.vtl` Velocity templates as you want to customize the 
 site.
 
 ## Build Instructions
+
+This section is only necessary if you want to build SCMS yourself instead of downloading it directly.
 
 SCMS requires [Java 1.6](http://www.oracle.com/technetwork/java/javase/downloads/index.html) and [Maven 3](http://maven.apache.org/) to build:
 
