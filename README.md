@@ -37,15 +37,15 @@ command is in your `$PATH`.  Ok, moving on...
 
 ### Download SCMS
 
-You may [download the latest stable SCMS version](http://repo.maven.apache.org/maven2/com/leshazlewood/scms/scms/0.1.0/scms-0.1.0.zip) from Maven Central.
+You may [download the latest stable SCMS version](http://repo.maven.apache.org/maven2/com/leshazlewood/scms/scms/0.1.1/scms-0.1.1.zip) from Maven Central.
 
 ### Install SCMS
 
-Unzip the SCMS distribution .zip file (e.g. scms-0.1.0.zip).  Add the resulting `scms-0.1.0/bin` directory
+Unzip the SCMS distribution .zip file (e.g. scms-0.1.1.zip).  Add the resulting `scms-0.1.1/bin` directory
 to your `PATH` environment variable.  For example, on Unix, Linux and Mac OS X*:
 
-    $ unzip scms-0.1.0.zip
-    $ export PATH=scms-0.1.0/bin:$PATH
+    $ unzip scms-0.1.1.zip
+    $ export PATH=scms-0.1.1/bin:$PATH
 
 It is recommended that you set this in `~/.bash_profile` so you don't have to do this manually every time you open 
 a new terminal prompt.
