@@ -254,7 +254,7 @@
                 <configuration>
                     <mavenExecutorId>forked-path</mavenExecutorId>
                     <useReleaseProfile>false</useReleaseProfile>
-                    <arguments>-Pdocs,signature</arguments>
+                    <arguments>-Pdocs,signature,sonatype-oss-release</arguments>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
             </plugin>
