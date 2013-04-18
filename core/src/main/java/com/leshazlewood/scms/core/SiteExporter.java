@@ -19,6 +19,7 @@ import groovy.util.ConfigObject;
 import groovy.util.ConfigSlurper;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 
 import java.io.BufferedWriter;
@@ -130,7 +131,7 @@ public class SiteExporter implements Runnable {
             defaultExcludesEnabled = getValue(scmsConfig, DEFAULT_EXCLUDES_ENABLED_NAME, Boolean.class);
         }
 
-        pegDownProcessor = new PegDownProcessor();
+        pegDownProcessor = new PegDownProcessor(Extensions.ALL);
     }
 
     private void ensureDirectory(File f) throws IOException {
