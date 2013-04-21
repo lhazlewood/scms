@@ -9,11 +9,31 @@ import static org.junit.Assert.*
  */
 class SiteExporterTest {
 
-    def exporter;
+    SiteExporter exporter;
 
     @Before
     void setUp() {
         exporter = new SiteExporter()
+    }
+
+    @Test(expected=IllegalArgumentException)
+    void testGetDirectoryPathWithNull() {
+        exporter.getRelativeDirectoryPath(null)
+    }
+
+    @Test
+    void testGetDirectoryPathWithEmptyString() {
+        assertEquals ".", exporter.getRelativeDirectoryPath("")
+    }
+
+    @Test
+    void testGetDirectoryPathWithFlatPath() {
+        assertEquals ".", exporter.getRelativeDirectoryPath('foo')
+    }
+
+    @Test
+    void testGetDirectoryPathWithExplicitSubPath() {
+        assertEquals "../..", exporter.getRelativeDirectoryPath('foo/bar/baz')
     }
 
     @Test(expected=IllegalArgumentException)

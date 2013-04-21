@@ -173,6 +173,26 @@ public class SiteExporter implements Runnable {
         return relPath;
     }
 
+    private String getRelativeDirectoryPath(String path) {
+        if (path == null) {
+            throw new IllegalArgumentException("path argument cannot be null.");
+        }
+        int lastSeparatorIndex = path.lastIndexOf(File.separatorChar);
+        if (lastSeparatorIndex <= 0) {
+            return ".";
+        }
+        String[] segments = path.split(File.separator);
+
+        StringBuilder sb = new StringBuilder("");
+        for (int i = 0; i < segments.length-1; i++) {
+            if (sb.length() > 0) {
+                sb.append(File.separatorChar);
+            }
+            sb.append("..");
+        }
+        return sb.toString();
+    }
+
     @SuppressWarnings("unchecked")
     private boolean isIncluded(File f) {
 
@@ -219,6 +239,15 @@ public class SiteExporter implements Runnable {
         return path + ext;
     }
 
+    private boolean isHtmlFile(String relPath) {
+        if (relPath == null) {
+            return false;
+        }
+
+        //TODO - make extensions configurable
+        return relPath.endsWith(".html") || relPath.endsWith(".htm");
+    }
+
     @SuppressWarnings("unchecked")
     private void recurse(File dir) throws IOException {
 
@@ -256,6 +285,13 @@ public class SiteExporter implements Runnable {
 
                         Map<String, Object> model = new LinkedHashMap<String, Object>();
 
+                        String relDirPath = getRelativeDirectoryPath(relPath);
+                        if ("".equals(relDirPath)) {
+                            //still need to reference it with a separator char in the file:
+                            relDirPath = ".";
+                        }
+                        model.put("root", relDirPath);
+
                         Map<String, Object> globalModel = getValue(scmsConfig, "model", Map.class);
                         append(model, globalModel);
 
@@ -282,12 +318,16 @@ public class SiteExporter implements Runnable {
                         File destFile = new File(destDir, destFileRelPath);
                         ensureFile(destFile);
 
-                        String markdown = readFile(f);
-                        markdown = stripMetadata(markdown, model);
+                        String content = readFile(f);
 
-                        String html = pegDownProcessor.markdownToHtml(markdown);
+                        //currently only HTML or Markdown files are supported:
+                        if (!isHtmlFile(relPath)) {
+                            //assume markdown for now:
+                            content = stripMetadata(content, model);
+                            content = pegDownProcessor.markdownToHtml(content);
+                        }
 
-                        model.put("content", html);
+                        model.put("content", content);
                         VelocityContext ctx = new VelocityContext(model);
 
                         FileWriter fw = new FileWriter(destFile);
