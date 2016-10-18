@@ -40,14 +40,14 @@ public class DefaultVelocityEngineFactory implements VelocityEngineFactory {
         return sb.toString();
     }
 
-
     @Override
     public VelocityEngine createVelocityEngine() {
         Properties props = new Properties();
+        props.put("input.encoding", "UTF-8");
         props.put("resource.loader", "file");
-        props.put("file.resource.loader.class", FileResourceLoader.class.getName());
-        props.put("file.resource.loader.path", createResourceLoaderPath());
-        props.put("file.resource.loader.cache", "false");
+        //props.put("file.resource.loader.class", FileResourceLoader.class.getName());
+        //props.put("file.resource.loader.path", createResourceLoaderPath());
+        //props.put("file.resource.loader.cache", "false");
 
         VelocityEngine engine = new VelocityEngine(props);
         engine.init();

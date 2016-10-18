@@ -15,42 +15,44 @@
  */
 package com.leshazlewood.scms.cli;
 
+import com.leshazlewood.scms.core.DefaultProcessor;
+import com.leshazlewood.scms.core.Processor;
 import com.leshazlewood.scms.core.SiteExporter;
 import com.leshazlewood.scms.core.Version;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-import org.apache.commons.cli.UnrecognizedOptionException;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @since 0.1
  */
 public class Main {
 
-    private static final String DEFAULT_CONFIG_FILE_NAME = SiteExporter.DEFAULT_CONFIG_FILE_NAME;
+    private static final String DEFAULT_CONFIG_FILE_NAME = DefaultProcessor.DEFAULT_CONFIG_FILE_NAME;
 
     private static final Option CONFIG = new Option("c", "config", true, "read the config file at the specified path. Default is <src_dir>/" + DEFAULT_CONFIG_FILE_NAME);
     private static final Option DEBUG = new Option("d", "debug", false, "show additional error (stack trace) information.");
+    private static final Option ENVIRONMENT = new Option("e", "env", true, "the configuration environment to enable.");
     private static final Option HELP = new Option("help", "help", false, "show this help message.");
     private static final Option VERSION = new Option("version", "version", false, "display the SCMS and Java versions");
 
     public static void main(String[] args) throws Exception {
 
-        CommandLineParser parser = new PosixParser();
+        CommandLineParser parser = new DefaultParser();
 
         Options options = new Options();
-        options.addOption(CONFIG).addOption(DEBUG).addOption(HELP).addOption(VERSION);
+        options.addOption(CONFIG).addOption(ENVIRONMENT).addOption(DEBUG).addOption(HELP).addOption(VERSION);
 
         boolean debug = false;
         File sourceDir = toFile(System.getProperty("user.dir"));
         File configFile = null;
         File destDir = null;
+        String envName = null;
 
         try {
             CommandLine line = parser.parse(options, args);
@@ -67,6 +69,11 @@ public class Main {
             if (line.hasOption(CONFIG.getOpt())) {
                 String configFilePath = line.getOptionValue(CONFIG.getOpt());
                 configFile = toFile(configFilePath);
+            }
+            if (line.hasOption(ENVIRONMENT.getOpt())) {
+                envName = line.getOptionValue(ENVIRONMENT.getOpt());
+                envName = envName != null ? envName.trim() : envName;
+                envName = "".equals(envName) ? null : envName;
             }
 
             String[] remainingArgs = line.getArgs();
@@ -92,25 +99,45 @@ public class Main {
 
             if (configFile == null) {
                 configFile = new File(sourceDir, DEFAULT_CONFIG_FILE_NAME);
+                if (!configFile.exists() || !configFile.isFile()) {
+                    //try old < 0.2 file name:
+                    configFile = new File(sourceDir, SiteExporter.DEFAULT_CONFIG_FILE_NAME);
+                }
             }
 
-            if (configFile.exists()) {
-                if (configFile.isDirectory()) {
-                    throw new IllegalArgumentException("Expected configuration file " + configFile + " is a directory, not a file.");
-                }
-            } else {
+            assertConfigNotDirectory(configFile);
+
+            /*
+
+            else {
                 String msg = "Configuration file not found.  Create a default " + DEFAULT_CONFIG_FILE_NAME +
-                        " file in your source directory or specify the " + CONFIG +
-                        " option to provide the file location.";
+                    " file in your source directory or specify the " + CONFIG +
+                    " option to provide the file location.";
                 throw new IllegalStateException(msg);
             }
+            */
 
+            Processor processor = new DefaultProcessor();
+            processor.setSourceDir(sourceDir);
+            processor.setDestDir(destDir);
+            if (configFile != null) {
+                processor.setConfigFile(configFile);
+            }
+            if (envName != null) {
+                processor.setEnvironment(envName);
+            }
+
+            processor.init();
+            processor.run();
+
+            /*
             SiteExporter siteExporter = new SiteExporter();
             siteExporter.setSourceDir(sourceDir);
             siteExporter.setDestDir(destDir);
             siteExporter.setConfigFile(configFile);
             siteExporter.init();
             siteExporter.execute();
+            */
 
         } catch (IllegalArgumentException iae) {
             exit(iae, debug);
@@ -121,9 +148,17 @@ public class Main {
         }
     }
 
+    private static void assertConfigNotDirectory(File f) {
+        if (f.exists()) {
+            if (f.isDirectory()) {
+                throw new IllegalArgumentException("Expected configuration file " + f + " is a directory, not a file.");
+            }
+        }
+    }
+
     private static void printVersionAndExit() {
         System.out.println("SCMS Version: " + Version.getVersion() + "\n" +
-                           "JVM Version : " + System.getProperty("java.version"));
+            "JVM Version : " + System.getProperty("java.version"));
         System.exit(0);
     }
 
@@ -141,9 +176,9 @@ public class Main {
         HelpFormatter help = new HelpFormatter();
         help.setWidth(80);
         String command = "scms [options] [src_dir] dest_dir";
-        String header = "Injests content files in [src dir] and renders a static website into dest_dir.\n\n" +
-                "  [src_dir] is optional and defaults to the current working directory.\n" +
-                "  dest_dir is required and cannot be the same as src_dir.";
+        String header = "Injests content files in src_dir and renders them into dest_dir.\n\n" +
+            "  src_dir is optional and defaults to the current working directory.\n" +
+            "  dest_dir is required and cannot be the same as src_dir.";
         /*String footer = "\n" +
                 "Injests source content files and page templates in [src dir] and renders a\n" +
                 "renders a static website into destination_directory.\n\n" +
