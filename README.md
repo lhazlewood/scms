@@ -28,24 +28,24 @@ Check to see if you have Java installed by running the following command at a te
 
 and you should see something like this:
 
-    java version "1.6.0_43"
-    Java(TM) SE Runtime Environment (build 1.6.0_43-b01-447-11M4203)
-    Java HotSpot(TM) 64-Bit Server VM (build 20.14-b01-447, mixed mode)
+    java version "1.8.0_92"
+    Java(TM) SE Runtime Environment (build 1.8.0_92-b14)
+    Java HotSpot(TM) 64-Bit Server VM (build 25.92-b14, mixed mode)
 
 If you don't see something similar, [install Java](http://java.com/en/download/index.jsp) first and ensure the `java` 
 command is in your `$PATH`.  Ok, moving on...
 
 ### Download SCMS
 
-You may [download the latest stable SCMS version](http://repo.maven.apache.org/maven2/com/leshazlewood/scms/scms/0.1.2/scms-0.1.2.zip) from Maven Central.
+You may [download the latest stable SCMS version](http://repo.maven.apache.org/maven2/com/leshazlewood/scms/scms/0.2.0/scms-0.2.0.zip) from Maven Central.
 
 ### Install SCMS
 
-Unzip the SCMS distribution .zip file (e.g. scms-0.1.2.zip).  Add the resulting `scms-0.1.2/bin` directory
+Unzip the SCMS distribution .zip file (e.g. scms-0.2.0.zip).  Add the resulting `scms-0.2.0/bin` directory
 to your `PATH` environment variable.  For example, on Unix, Linux and Mac OS X*:
 
-    $ unzip scms-0.1.2.zip
-    $ export PATH=scms-0.1.2/bin:$PATH
+    $ unzip scms-0.2.0.zip
+    $ export PATH=scms-0.2.0/bin:$PATH
 
 It is recommended that you set this in `~/.bash_profile` so you don't have to do this manually every time you open 
 a new terminal prompt.
@@ -72,7 +72,7 @@ The `mysite` directory is the root of our quick website project.  The `templates
 
 ### Configuration
 
-Create a `config.scms.groovy` file in the root directory of your static website project with the following contents to get started:
+Create a `.scms.groovy` file in the root directory of your static website project with the following contents to get started:
 
     scms {
 
@@ -106,7 +106,7 @@ Now our project structure looks like this:
 
     mysite/
         templates/
-        config.scms.groovy
+        .scms.groovy
 
 ### HTML Template
 
@@ -129,7 +129,7 @@ Now our project structure looks like this:
     mysite/
         templates/
             default.vtl
-        config.scms.groovy
+        .scms.groovy
 
 ### Our First Content File
 
@@ -144,7 +144,7 @@ Now our project structure looks like this:
     mysite/
         templates/
             default.vtl
-        config.scms.groovy
+        .scms.groovy
         index.md
 
 ### Render your site
@@ -167,7 +167,7 @@ After you've run this command, you'll see the following directory structure:
             index.html
         templates/
             default.vtl
-        config.scms.groovy
+        .scms.groovy
         index.md
 
 See the new `output` directory with the `index.html` file?  Open it up and this is what you'll see:
@@ -192,12 +192,12 @@ Now that you've gotten your feet wet, here's what is going on:
 
 SCMS will produce a 1:1 recursive copy of the site in your source directory (the `mysite` directory above) to your 
 specified destination directory (the `output` directory above).  But during that process, it will render all Markdown 
-files as HTML files using the specified Velocity template(s) in `config.scms.groovy`.
+files as HTML files using the specified Velocity template(s) in `.scms.groovy`.
 
-As you can infer from `config.scms.groovy`, you can have multiple templates: for any file matching a particular pattern,
+As you can infer from `.scms.groovy`, you can have multiple templates: for any file matching a particular pattern,
 you can apply a specific template for that pattern.  Patterns are matched based on a 'first match wins' policy, so more
 specific patterns must be defined before more general patterns.  If a file in the source directory tree does not 
-match a pattern in `config.scms.groovy`, it is simply copied to the destination directory unchanged.  Any file that you
+match a pattern in `.scms.groovy`, it is simply copied to the destination directory unchanged.  Any file that you
 don't want copied to the destination directory should have a path that matches one of the String patterns in the 
 `excludes` array.
 
@@ -209,7 +209,7 @@ site.
 
 This section is only necessary if you want to build SCMS yourself instead of downloading it directly.
 
-SCMS requires [Java 1.6](http://www.oracle.com/technetwork/java/javase/downloads/index.html) and [Maven 3](http://maven.apache.org/) to build:
+SCMS requires [Java 1.8](http://www.oracle.com/technetwork/java/javase/downloads/index.html) and [Maven 3](http://maven.apache.org/) to build:
 
     $ mvn install
     
