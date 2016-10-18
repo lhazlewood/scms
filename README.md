@@ -144,7 +144,7 @@ Now our project structure looks like this:
     mysite/
         templates/
             default.vtl
-        config.scms.groovy
+        .scms.groovy
         index.md
 
 ### Render your site
