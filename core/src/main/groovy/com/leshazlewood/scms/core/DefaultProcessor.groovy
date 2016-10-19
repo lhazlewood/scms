@@ -99,10 +99,10 @@ class DefaultProcessor implements Processor {
         }
     }
 
-    private static Map<String,Renderer> asRendererMap(Collection<Renderer> c) {
+    private static Map<String, Renderer> asRendererMap(Collection<Renderer> c) {
 
-        Map<String,Renderer> m = [:]
-        for(Renderer r : c) {
+        Map<String, Renderer> m = [:]
+        for (Renderer r : c) {
             if (r instanceof FileRenderer) {
                 m[r.inputFileExtension] = r
             }
@@ -113,11 +113,7 @@ class DefaultProcessor implements Processor {
 
     @Override
     public void run() {
-        try {
-            recurse(sourceDir);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        recurse(sourceDir);
     }
 
     private void ensureDirectory(File f) throws IOException {
@@ -231,121 +227,131 @@ class DefaultProcessor implements Processor {
                 continue;
             }
 
-            String relPath = getRelativePath(sourceDir, f);
-
             if (f.isDirectory()) {
+                String relPath = getRelativePath(sourceDir, f);
                 File copiedDir = new File(destDir, relPath);
                 ensureDirectory(copiedDir);
                 recurse(f);
             } else {
-
-                Map<String,Object> config = (Map<String,Object>)deepcopy(this.config as Map)
-
-                Map<String,Object> model = [:]
-
-                if (config.containsKey('model') && config.model instanceof Map) {
-                    model = config.model as Map
-                } else {
-                    config.model = model
-                }
-
-                String relDirPath = getRelativeDirectoryPath(relPath);
-                if ("".equals(relDirPath)) {
-                    //still need to reference it with a separator char in the file:
-                    relDirPath = ".";
-                }
-
-                model.root = relDirPath
-
-                Map patterns = Collections.emptyMap()
-
-                if (config.containsKey('patterns')) {
-                    assert config.patterns instanceof Map: "scms.patterns must be a map"
-                    patterns = config.patterns
-                }
-
-                String action = 'render' //default unless overridden
-
-                for (Map.Entry<String, ?> patternEntry : patterns.entrySet()) {
-
-                    String pattern = patternEntry.getKey();
-
-                    if (patternMatcher.matches(pattern, relPath)) {
-
-                        assert patternEntry.value instanceof Map: "Entry for pattern '$pattern' must be a map."
-                        Map patternConfig = patternEntry.value as Map
-                        config << patternConfig
-
-                        //pattern-specific model
-                        if (patternConfig.model && patternConfig.model instanceof Map) {
-                            model << (patternConfig.model as Map)
-                        }
-
-                        if (patternConfig.containsKey('render')) {
-                            action = patternConfig.render
-                        }
-
-                        break; //stop pattern iteration - first match always wins
-                    }
-                }
-
-                if (action == 'skip') {
-                    continue;
-                } else if (action == 'copy') {
-                    File destFile = new File(destDir, relPath);
-                    ensureFile(destFile);
-                    copy(f, destFile);
-                    continue;
-                }
-
-                //otherwise we need to render:
-                Reader content = null
-                String destRelPath = relPath; //assume same unless it is itself a template
-
-                String extension = getExtension(destRelPath);
-                if (extension) {
-                    Renderer renderer = getRenderer(model, destRelPath)
-                    if (renderer) {
-                        content = Files.newBufferedReader(f.toPath(), StandardCharsets.UTF_8)
-                        destRelPath = relPath.substring(0, relPath.length() - (extension.length() + 1))
-
-                        if (!hasExtension(destRelPath)) {
-                            if (renderer instanceof FileRenderer) {
-                                destRelPath += ".$renderer.outputFileExtension"
-                            }
-                        }
-
-                        content = render(renderer, model, destRelPath, content)
-                    }
-                }
-
-                if (config.template) { //a template will be used to render the contents
-                    String template = config.template as String
-                    Renderer renderer = getRenderer(template)
-                    if (renderer) {
-                        if (content == null) {
-                            content = Files.newBufferedReader(f.toPath(), StandardCharsets.UTF_8)
-                        }
-                        model.content = content.getText()
-                        content = Files.newBufferedReader(new File(template).toPath(), StandardCharsets.UTF_8)
-                        content = render(renderer, model, destRelPath, content)
-                    }
-                }
-
-                File destFile = new File(destDir, destRelPath);
-                ensureFile(destFile);
-
-                if (content != null) {
-                    //write out the rendered content to the destination file:
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(destFile));
-                    copy(content, writer)
-                    content.close()
-                    writer.close()
-                } else {
-                    //just copy the file over:
-                    copy(f, destFile);
+                try {
+                    renderFile(f);
+                } catch (Exception e) {
+                    throw new IOException("Unable to render file $f: ${e.message}")
                 }
             }
+        }
+    }
+
+    private void renderFile(File f) throws IOException {
+
+        String relPath = getRelativePath(sourceDir, f);
+
+        Map<String, Object> config = (Map<String, Object>) deepcopy(this.config as Map)
+
+        Map<String, Object> model = [:]
+
+        if (config.containsKey('model') && config.model instanceof Map) {
+            model = config.model as Map
+        } else {
+            config.model = model
+        }
+
+        String relDirPath = getRelativeDirectoryPath(relPath);
+        if ("".equals(relDirPath)) {
+            //still need to reference it with a separator char in the file:
+            relDirPath = ".";
+        }
+
+        model.root = relDirPath
+
+        Map patterns = Collections.emptyMap()
+
+        if (config.containsKey('patterns')) {
+            assert config.patterns instanceof Map: "scms.patterns must be a map"
+            patterns = config.patterns
+        }
+
+        String action = 'render' //default unless overridden
+
+        for (Map.Entry<String, ?> patternEntry : patterns.entrySet()) {
+
+            String pattern = patternEntry.getKey();
+
+            if (patternMatcher.matches(pattern, relPath)) {
+
+                assert patternEntry.value instanceof Map: "Entry for pattern '$pattern' must be a map."
+                Map patternConfig = patternEntry.value as Map
+                config << patternConfig
+
+                //pattern-specific model
+                if (patternConfig.model && patternConfig.model instanceof Map) {
+                    model << (patternConfig.model as Map)
+                }
+
+                if (patternConfig.containsKey('render')) {
+                    action = patternConfig.render
+                }
+
+                break; //stop pattern iteration - first match always wins
+            }
+        }
+        config.model = model
+
+        if (action == 'skip') {
+            return;
+        } else if (action == 'copy') {
+            File destFile = new File(destDir, relPath);
+            ensureFile(destFile);
+            copy(f, destFile);
+            return;
+        }
+
+        //otherwise we need to render:
+        Reader content = null
+        String destRelPath = relPath; //assume same unless it is itself a template
+
+        Renderer renderer = getRenderer(config, destRelPath)
+        if (renderer) {
+            String extension = getExtension(destRelPath)
+            content = Files.newBufferedReader(f.toPath(), StandardCharsets.UTF_8)
+            destRelPath = relPath.substring(0, relPath.length() - (extension.length() + 1))
+
+            String destExtension = (renderer instanceof FileRenderer) ? renderer.outputFileExtension : extension;
+
+            if (config.outputFileExtension) {
+                destExtension = config.outputFileExtension
+            }
+
+            destRelPath += ".$destExtension"
+
+            content = render(renderer, model, destRelPath, content)
+        }
+
+        if (config.template) { //a template will be used to render the contents
+            String template = config.template as String
+            renderer = getRenderer(template)
+            if (renderer) {
+                if (content == null) {
+                    content = Files.newBufferedReader(f.toPath(), StandardCharsets.UTF_8)
+                }
+                model.content = content.getText()
+                content = Files.newBufferedReader(new File(template).toPath(), StandardCharsets.UTF_8)
+                content = render(renderer, model, destRelPath, content)
+            }
+        }
+
+        File destFile = new File(destDir, destRelPath);
+        ensureFile(destFile);
+
+        if (content != null) {
+            //write out the rendered content to the destination file:
+            BufferedWriter writer = new BufferedWriter(new FileWriter(destFile));
+            copy(content, writer)
+            content.close()
+            writer.close()
+        } else {
+            //just copy the file over:
+            copy(f, destFile);
         }
     }
 
@@ -354,7 +360,7 @@ class DefaultProcessor implements Processor {
             return null
         }
         Map copy = [:]
-        for(Map.Entry e : map.entrySet()) {
+        for (Map.Entry e : map.entrySet()) {
             Object value = e.value
             if (value instanceof Collection) {
                 value = deepcopy(value as Collection)
@@ -372,7 +378,7 @@ class DefaultProcessor implements Processor {
             return list;
         }
         List copy = []
-        for(Object o : list) {
+        for (Object o : list) {
             Object value = o;
             if (o instanceof Collection) {
                 value = deepcopy(o as Collection)
@@ -384,7 +390,6 @@ class DefaultProcessor implements Processor {
         }
         return copy
     }
-
 
 
     private boolean hasExtension(String path) {
@@ -405,14 +410,14 @@ class DefaultProcessor implements Processor {
         return renderersByExtension[extension]
     }
 
-    Renderer getRenderer(Map model, String path) {
-        if ('velocity'.equals(model.renderer)) {
+    Renderer getRenderer(Map config, String path) {
+        if ('velocity'.equals(config.renderer)) {
             return velocityRenderer;
-        } else if ('pegdown'.equals(model.renderer)) {
+        } else if ('pegdown'.equals(config.renderer)) {
             return pegdownRenderer;
         }
 
-        for(Renderer r : renderers) {
+        for (Renderer r : renderers) {
             if (r instanceof FileRenderer && r.supports(path)) {
                 return r;
             }
@@ -430,8 +435,6 @@ class DefaultProcessor implements Processor {
         resultWriter.close()
         return new StringReader(resultWriter.toString());
     }
-
-
 
     /**
      * Reads all characters from a Reader and writes them to a Writer.
