@@ -311,10 +311,14 @@ class DefaultProcessor implements Processor {
         String destRelPath = relPath; //assume same unless it is itself a template
 
         Renderer renderer = getRenderer(config, destRelPath)
-        if (renderer) {
+
+        while (renderer) {
+
             String extension = getExtension(destRelPath)
-            content = Files.newBufferedReader(f.toPath(), StandardCharsets.UTF_8)
-            destRelPath = relPath.substring(0, relPath.length() - (extension.length() + 1))
+            if (content == null) {
+                content = Files.newBufferedReader(f.toPath(), StandardCharsets.UTF_8)
+            }
+            destRelPath = destRelPath.substring(0, destRelPath.length() - (extension.length() + 1))
 
             String destExtension = (renderer instanceof FileRenderer) ? renderer.outputFileExtension : extension;
 
@@ -322,9 +326,15 @@ class DefaultProcessor implements Processor {
                 destExtension = config.outputFileExtension
             }
 
-            destRelPath += ".$destExtension"
+            Renderer nextRenderer = getRenderer(config, destRelPath)
+
+            // if this is the last renderer set the extension, otherwise, skip it
+            if (nextRenderer == null && !destRelPath.endsWith(".$destExtension")) {
+                destRelPath += ".$destExtension"
+            }
 
             content = render(renderer, model, destRelPath, content)
+            renderer = nextRenderer
         }
 
         if (config.template) { //a template will be used to render the contents
