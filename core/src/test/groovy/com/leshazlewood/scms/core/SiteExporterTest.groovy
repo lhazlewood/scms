@@ -15,10 +15,15 @@
  */
 package com.leshazlewood.scms.core
 
-import static org.junit.Assert.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.function.Executable
 
-import org.junit.Before
-import org.junit.Test
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertNotNull
+import static org.junit.jupiter.api.Assertions.assertThrows
+import static org.junit.jupiter.api.Assertions.assertTrue
+
 
 /**
  * @since 0.1
@@ -27,14 +32,17 @@ class SiteExporterTest {
 
   SiteExporter exporter
 
-  @Before
+  @BeforeEach
   void setUp() {
     exporter = new SiteExporter()
   }
 
-  @Test(expected=IllegalArgumentException)
+  @Test
   void testGetDirectoryPathWithNull() {
-    exporter.getRelativeDirectoryPath(null)
+    assertThrows(
+            IllegalArgumentException.class,
+            { exporter.getRelativeDirectoryPath(null) } as Executable
+    )
   }
 
   @Test
@@ -52,9 +60,12 @@ class SiteExporterTest {
     assertEquals "../..", exporter.getRelativeDirectoryPath('foo/bar/baz')
   }
 
-  @Test(expected=IllegalArgumentException)
+  @Test
   void testStripMetadataWithNullModelArgument() {
-    exporter.stripMetadata('content', null)
+    assertThrows(
+            IllegalArgumentException.class,
+            { exporter.stripMetadata('content', null) } as Executable
+    )
   }
 
   @Test

@@ -82,10 +82,11 @@
         <pegdown.version>1.6.0</pegdown.version>
         <groovy.version>3.0.7</groovy.version>
 
-        <!-- Test Dependencies: -->
-        <easymock.version>3.4</easymock.version>
-        <junit.version>4.12</junit.version>
-        <logback.version>1.2.3</logback.version>
+      <!-- Test Dependencies: -->
+      <easymock.version>3.4</easymock.version>
+      <dependency.junit.jupiter.version>5.7.0</dependency.junit.jupiter.version>
+      <dependency.hamcrest.version>2.2</dependency.hamcrest.version>
+      <logback.version>1.2.3</logback.version>
 
         <!-- plugins -->
         <plugin.spotless.version>2.7.0</plugin.spotless.version>
@@ -97,29 +98,38 @@
       <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
     </properties>
 
-    <dependencies>
+  <!-- forced dependencies -->
+  <dependencies>
 
-        <!-- Test Dependencies: -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>${easymock.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
-            <scope>test</scope>
-        </dependency>
+    <!-- Test Dependencies: -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${dependency.junit.jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest-library -->
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <version>${dependency.hamcrest.version}</version>
+      <scope>test</scope>
+    </dependency>
 
-    </dependencies>
+    <dependency>
+        <groupId>org.easymock</groupId>
+        <artifactId>easymock</artifactId>
+        <version>${easymock.version}</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
+        <scope>test</scope>
+    </dependency>
+
+  </dependencies>
 
     <dependencyManagement>
 
@@ -166,6 +176,12 @@
             </dependency>
 
             <!-- Test Libraries: -->
+          <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${dependency.junit.jupiter.version}</version>
+            <scope>test</scope>
+          </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
