@@ -80,7 +80,7 @@
         <slf4j.version>1.7.21</slf4j.version>
         <velocity.version>1.7</velocity.version>
         <pegdown.version>1.6.0</pegdown.version>
-        <groovy.version>2.4.7</groovy.version>
+        <groovy.version>3.0.7</groovy.version>
 
         <!-- Test Dependencies: -->
         <easymock.version>3.4</easymock.version>
@@ -137,7 +137,7 @@
             </dependency>
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
+                <artifactId>groovy</artifactId>
                 <version>${groovy.version}</version>
             </dependency>
             <dependency>
@@ -211,11 +211,11 @@
                 <!-- For unit tests: -->
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.12.0</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-all</artifactId>
+                        <artifactId>groovy</artifactId>
                         <version>${groovy.version}</version>
                     </dependency>
                 </dependencies>
@@ -226,8 +226,6 @@
                             <goal>addTestSources</goal>
                             <goal>generateStubs</goal>
                             <goal>compile</goal>
-                            <goal>testGenerateStubs</goal>
-                            <goal>testCompile</goal>
                             <goal>removeStubs</goal>
                             <goal>removeTestStubs</goal>
                         </goals>
