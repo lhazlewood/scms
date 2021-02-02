@@ -50,7 +50,7 @@ public class VelocityRenderer implements FileRenderer {
   @Override
   public void render(RenderRequest request) {
 
-    Map<String, ?> model = request.getModel();
+    Map<String, Object> model = request.getModel();
     if (model == null) {
       model = Collections.emptyMap();
     }
