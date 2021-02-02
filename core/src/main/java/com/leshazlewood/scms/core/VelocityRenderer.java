@@ -2,6 +2,7 @@ package com.leshazlewood.scms.core;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.exception.ResourceNotFoundException;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -45,7 +46,14 @@ public class VelocityRenderer implements FileRenderer {
         String sourceName = request.getResource().getName();
         Reader sourceReader = request.getResource().getReader();
 
-        boolean successful = velocityEngine.evaluate(ctx, outputWriter, sourceName, sourceReader);
+        boolean successful;
+
+        try {
+            successful = velocityEngine.evaluate(ctx, outputWriter, sourceName, sourceReader);
+        } catch ( ResourceNotFoundException notFoundException ) {
+            throw new IllegalStateException("Unable to find resource ", notFoundException);
+        }
+
 
         if (!successful) {
             throw new IllegalStateException("Unable to render resource " + sourceName);
