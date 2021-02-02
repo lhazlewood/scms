@@ -85,7 +85,7 @@
         <!-- Test Dependencies: -->
         <easymock.version>3.4</easymock.version>
         <junit.version>4.12</junit.version>
-        <logback.version>1.1.7</logback.version>
+        <logback.version>1.2.3</logback.version>
 
         <!-- plugins -->
         <plugin.spotless.version>2.7.0</plugin.spotless.version>
