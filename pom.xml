@@ -88,7 +88,7 @@
         <logback.version>1.1.7</logback.version>
 
         <!-- plugins -->
-        <plugin.spotless.version>2.6.1</plugin.spotless.version>
+        <plugin.spotless.version>2.7.0</plugin.spotless.version>
 
     </properties>
 
