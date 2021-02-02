@@ -87,6 +87,9 @@
         <junit.version>4.12</junit.version>
         <logback.version>1.1.7</logback.version>
 
+        <!-- plugins -->
+        <plugin.spotless.version>2.6.1</plugin.spotless.version>
+
     </properties>
 
     <dependencies>
@@ -251,6 +254,65 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${plugin.spotless.version}</version>
+                <configuration>
+                    <!-- license header update -->
+                    <ratchetFrom>origin/master</ratchetFrom>
+
+                    <java>
+                        <includes>
+                            <include>src/main/java/**/*.java</include>
+                            <include>src/test/java/**/*.java</include>
+                            <include>src/it/projects/**/*.java</include>
+                        </includes>
+
+                        <removeUnusedImports />
+                        <importOrder />
+
+                        <!-- apply a specific flavor of google-java-format -->
+                        <googleJavaFormat>
+                            <style>GOOGLE</style>
+                        </googleJavaFormat>
+
+                        <!-- make sure every file has the following copyright header.
+                          optionally, Spotless can set copyright years by digging
+                          through git history (see "license" section below) -->
+                        <licenseHeader>
+                            <!--suppress MavenModelInspection -->
+                            <file>${maven.multiModuleProjectDirectory}/build/license-header.java.txt</file>
+                        </licenseHeader>
+                    </java>
+
+                    <groovy>
+                        <!-- These are the defaults, you can override if you want -->
+                        <includes>
+                            <include>src/main/groovy/**/*.groovy</include>
+                            <include>src/test/groovy/**/*.groovy</include>
+                            <include>src/it/projects/**/*.groovy</include>
+                        </includes>
+
+                        <importOrder />
+
+                        <greclipse />
+
+                        <licenseHeader>
+                            <!--suppress MavenModelInspection -->
+                            <file>${maven.multiModuleProjectDirectory}/build/license-header.java.txt</file>
+                        </licenseHeader>
+                    </groovy>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

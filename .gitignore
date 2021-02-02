@@ -7,3 +7,4 @@ target
 .run
 
 /**/it/projects/**/build.log
+build/
