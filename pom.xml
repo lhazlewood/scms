@@ -250,6 +250,7 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 
@@ -306,6 +307,73 @@
                             </execution>
                         </executions>
                         <inherited>true</inherited>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>run-its</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>mrm-maven-plugin</artifactId>
+                        <version>1.2.0</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>start</goal>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <propertyName>mrm.repository.url</propertyName>
+                            <repositories>
+                                <mockRepo>
+                                    <source>src/it/mrm/repository</source>
+                                </mockRepo>
+                                <proxyRepo />
+                            </repositories>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <configuration>
+                            <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+                            <environmentVariables>
+                                <!--
+                                  ! Prevent reading the .mavenrc or maven_pre.bat on Windows
+                                  ! in integration tests.
+                                -->
+                                <MAVEN_SKIP_RC>1</MAVEN_SKIP_RC>
+                            </environmentVariables>
+                            <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+                            <projectsDirectory>src/it/projects</projectsDirectory>
+                            <pomIncludes>
+                                <pomInclude>*/pom.xml</pomInclude>
+                            </pomIncludes>
+                            <settingsFile>src/it/mrm/settings.xml</settingsFile>
+                            <filterProperties>
+                                <!--suppress MavenModelInspection -->
+                                <mrm.repository.url>${mrm.repository.url}</mrm.repository.url>
+                            </filterProperties>
+                            <goals>
+                                <goal>clean</goal>
+                                <goal>package</goal>
+                            </goals>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>integration-test</id>
+                                <goals>
+                                    <goal>install</goal>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

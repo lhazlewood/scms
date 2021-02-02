@@ -4,3 +4,6 @@
 .project
 .idea
 target
+.run
+
+/**/it/projects/**/build.log
