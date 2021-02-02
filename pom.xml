@@ -296,7 +296,10 @@
 
                         <importOrder />
 
-                        <greclipse />
+                        <greclipse>
+                            <!--suppress MavenModelInspection -->
+                            <file>${maven.multiModuleProjectDirectory}/build/greclipse.properties</file>
+                        </greclipse>
 
                         <licenseHeader>
                             <!--suppress MavenModelInspection -->
