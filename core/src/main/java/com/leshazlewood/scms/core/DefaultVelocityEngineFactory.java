@@ -16,10 +16,12 @@
 package com.leshazlewood.scms.core;
 
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.resource.loader.FileResourceLoader;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.StringJoiner;
+import java.util.stream.Stream;
 
 /**
  * @since 0.1
@@ -35,9 +37,13 @@ public class DefaultVelocityEngineFactory implements VelocityEngineFactory {
     }
 
     private String createResourceLoaderPath() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(sourceDir.getAbsolutePath()).append(", ").append(templatesDir.getAbsolutePath());
-        return sb.toString();
+        StringJoiner stringJoiner = new StringJoiner( "," );
+
+        Stream.of(sourceDir, templatesDir)
+                .filter( Objects::nonNull )
+                .forEach( dir -> stringJoiner.add( dir.getAbsolutePath() ) );
+
+        return stringJoiner.toString();
     }
 
     @Override
@@ -46,7 +52,7 @@ public class DefaultVelocityEngineFactory implements VelocityEngineFactory {
         props.put("input.encoding", "UTF-8");
         props.put("resource.loader", "file");
         //props.put("file.resource.loader.class", FileResourceLoader.class.getName());
-        //props.put("file.resource.loader.path", createResourceLoaderPath());
+        props.put("file.resource.loader.path", createResourceLoaderPath());
         //props.put("file.resource.loader.cache", "false");
 
         VelocityEngine engine = new VelocityEngine(props);

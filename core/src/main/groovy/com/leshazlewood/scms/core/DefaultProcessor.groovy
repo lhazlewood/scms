@@ -64,7 +64,7 @@ class DefaultProcessor implements Processor {
             throw new IllegalArgumentException("Source directory and destination directory cannot be the same.");
         }
 
-        VelocityEngine velocityEngine = new DefaultVelocityEngineFactory(sourceDir, null).createVelocityEngine();
+        VelocityEngine velocityEngine = new DefaultVelocityEngineFactory(sourceDir, new File(this.sourceDir, "templates")).createVelocityEngine();
         velocityRenderer = new VelocityRenderer(velocityEngine);
 
         pegdownRenderer = new PegdownRenderer(new PegDownProcessor(Extensions.ALL))
@@ -339,13 +339,14 @@ class DefaultProcessor implements Processor {
 
         if (config.template) { //a template will be used to render the contents
             String template = config.template as String
+            File templateFile = new File(this.sourceDir, template);
             renderer = getRenderer(template)
             if (renderer) {
                 if (content == null) {
                     content = Files.newBufferedReader(f.toPath(), StandardCharsets.UTF_8)
                 }
                 model.content = content.getText()
-                content = Files.newBufferedReader(new File(template).toPath(), StandardCharsets.UTF_8)
+                content = Files.newBufferedReader(templateFile.toPath(), StandardCharsets.UTF_8)
                 content = render(renderer, model, destRelPath, content)
             }
         }
