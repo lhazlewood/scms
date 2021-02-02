@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/lhazlewood/scms.png)](https://travis-ci.org/lhazlewood/scms)
+![Java CI with Maven](https://github.com/bmarwell/scms/workflows/Java%20CI%20with%20Maven/badge.svg)
 # SCMS
 
 SCMS (Simple Content Management System) is very simple file-based CMS - no database required!  
