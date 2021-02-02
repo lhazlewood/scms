@@ -20,7 +20,7 @@ import java.util.Map;
 
 public interface RenderRequest {
 
-  Map<String, ?> getModel();
+  Map<String, Object> getModel();
 
   Resource getResource();
 
