@@ -15,6 +15,8 @@
  */
 package com.leshazlewood.scms.core;
 
+import io.github.scms.api.RenderRequest;
+import io.github.scms.api.Resource;
 import java.io.Writer;
 import java.util.Map;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Les Hazlewood, scms contributors
+ * Copyright 2013-2021 Les Hazlewood, scms contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package com.leshazlewood.scms.cli;
 
 import com.leshazlewood.scms.core.DefaultProcessor;
 import com.leshazlewood.scms.core.Processor;
-import com.leshazlewood.scms.core.SiteExporter;
 import com.leshazlewood.scms.core.Version;
 import java.io.File;
 import org.apache.commons.cli.CommandLine;
@@ -110,10 +109,6 @@ public class Main {
 
       if (configFile == null) {
         configFile = new File(sourceDir, DEFAULT_CONFIG_FILE_NAME);
-        if (!configFile.exists() || !configFile.isFile()) {
-          // try old < 0.2 file name:
-          configFile = new File(sourceDir, SiteExporter.DEFAULT_CONFIG_FILE_NAME);
-        }
       }
 
       assertConfigNotDirectory(configFile);

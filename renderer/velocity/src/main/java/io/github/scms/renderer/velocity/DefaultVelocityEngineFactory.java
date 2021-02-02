@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Les Hazlewood, scms contributors
+ * Copyright 2013-2021 Les Hazlewood, scms contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.leshazlewood.scms.core;
+package io.github.scms.renderer.velocity;
 
 import java.io.File;
 import java.util.Objects;

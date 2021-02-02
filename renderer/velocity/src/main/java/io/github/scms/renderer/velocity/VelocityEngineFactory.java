@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Les Hazlewood, scms contributors
+ * Copyright 2013-2021 Les Hazlewood, scms contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.leshazlewood.scms.core;
+package io.github.scms.renderer.velocity;
 
-import io.github.scms.api.Resource;
-import java.io.Reader;
+import org.apache.velocity.app.VelocityEngine;
 
-public class DefaultResource implements Resource {
+/** @since 0.1 */
+public interface VelocityEngineFactory {
 
-  private final String name;
-  private final Reader reader;
-
-  public DefaultResource(String name, Reader reader) {
-    this.name = name;
-    this.reader = reader;
-  }
-
-  @Override
-  public String getName() {
-    return this.name;
-  }
-
-  @Override
-  public Reader getReader() {
-    return this.reader;
-  }
+  VelocityEngine createVelocityEngine();
 }

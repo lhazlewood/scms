@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.leshazlewood.scms.core;
+package io.github.scms.api;
 
-public interface FileRenderer extends Renderer {
+import java.io.Writer;
+import java.util.Map;
 
-  boolean supports(String filename);
+public interface RenderRequest {
 
-  String getInputFileExtension();
+  Map<String, Object> getModel();
 
-  String getOutputFileExtension();
+  Resource getResource();
+
+  Writer getWriter();
 }

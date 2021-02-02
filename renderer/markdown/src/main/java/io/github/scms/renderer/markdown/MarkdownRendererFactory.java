@@ -13,28 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.leshazlewood.scms.core;
+package io.github.scms.renderer.markdown;
 
-import io.github.scms.api.Resource;
-import java.io.Reader;
+import io.github.scms.api.FileRenderer;
+import io.github.scms.api.FileRendererFactory;
+import java.io.File;
+import org.pegdown.Extensions;
+import org.pegdown.PegDownProcessor;
 
-public class DefaultResource implements Resource {
+public class MarkdownRendererFactory implements FileRendererFactory {
 
-  private final String name;
-  private final Reader reader;
-
-  public DefaultResource(String name, Reader reader) {
-    this.name = name;
-    this.reader = reader;
+  @Override
+  public FileRendererFactory withSourceDir(File sourceDir) {
+    return this;
   }
 
   @Override
-  public String getName() {
-    return this.name;
+  public FileRendererFactory withTemplateDir(File templateDir) {
+    return this;
   }
 
   @Override
-  public Reader getReader() {
-    return this.reader;
+  public FileRenderer create() {
+    PegDownProcessor pegDownProcessor = new PegDownProcessor(Extensions.ALL);
+
+    return new PegdownRenderer(pegDownProcessor);
   }
 }

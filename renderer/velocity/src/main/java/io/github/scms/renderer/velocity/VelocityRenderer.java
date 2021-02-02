@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.leshazlewood.scms.core;
+package io.github.scms.renderer.velocity;
 
+import io.github.scms.api.FileRenderer;
+import io.github.scms.api.RenderRequest;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Collections;

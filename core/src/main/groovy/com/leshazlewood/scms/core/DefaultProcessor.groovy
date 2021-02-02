@@ -1,8 +1,10 @@
 package com.leshazlewood.scms.core
 
-import org.apache.velocity.app.VelocityEngine
-import org.pegdown.Extensions
-import org.pegdown.PegDownProcessor
+import io.github.scms.api.FileRenderer
+import io.github.scms.api.FileRendererFactory
+import io.github.scms.api.RenderRequest
+import io.github.scms.api.Renderer
+import io.github.scms.api.Resource
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -18,7 +20,7 @@ class DefaultProcessor implements Processor {
 
     Renderer velocityRenderer;
     Renderer pegdownRenderer;
-    Collection<Renderer> renderers;
+    Set<Renderer> renderers = new HashSet<>();
     Map<String, Renderer> renderersByExtension;
 
     File sourceDir
@@ -64,14 +66,18 @@ class DefaultProcessor implements Processor {
             throw new IllegalArgumentException("Source directory and destination directory cannot be the same.");
         }
 
-        VelocityEngine velocityEngine = new DefaultVelocityEngineFactory(sourceDir, new File(this.sourceDir, "templates")).createVelocityEngine();
-        velocityRenderer = new VelocityRenderer(velocityEngine);
+        def templateDir = new File(this.sourceDir, "templates")
 
-        pegdownRenderer = new PegdownRenderer(new PegDownProcessor(Extensions.ALL))
-
-        renderers = []
-        renderers << velocityRenderer
-        renderers << pegdownRenderer
+        ServiceLoader<FileRendererFactory> serviceLoader = ServiceLoader.load(FileRendererFactory.class)
+        def rendererIterator = serviceLoader.iterator()
+        while (rendererIterator.hasNext()) {
+            def fileRendererFactory = rendererIterator.next()
+            def fileRenderer = fileRendererFactory
+                    .withSourceDir(sourceDir)
+                    .withTemplateDir(templateDir)
+                    .create();
+            renderers.add(fileRenderer)
+        }
 
         renderersByExtension = asRendererMap(renderers)
 

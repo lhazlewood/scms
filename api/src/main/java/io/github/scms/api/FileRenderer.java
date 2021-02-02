@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Les Hazlewood, scms contributors
+ * Copyright 2021 Les Hazlewood, scms contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.leshazlewood.scms.core;
+package io.github.scms.api;
 
-import org.apache.velocity.app.VelocityEngine;
+public interface FileRenderer extends Renderer {
 
-/** @since 0.1 */
-public interface VelocityEngineFactory {
+  boolean supports(String filename);
 
-  VelocityEngine createVelocityEngine();
+  String getInputFileExtension();
+
+  String getOutputFileExtension();
 }

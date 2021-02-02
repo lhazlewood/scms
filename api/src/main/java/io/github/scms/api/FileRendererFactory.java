@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.leshazlewood.scms.core;
+package io.github.scms.api;
 
-import java.io.Writer;
-import java.util.Map;
+import java.io.File;
 
-public interface RenderRequest {
+public interface FileRendererFactory {
 
-  Map<String, Object> getModel();
+  FileRendererFactory withSourceDir(File sourceDir);
 
-  Resource getResource();
+  FileRendererFactory withTemplateDir(File templateDir);
 
-  Writer getWriter();
+  FileRenderer create();
 }
