@@ -235,8 +235,8 @@ class DefaultProcessor implements Processor {
             } else {
                 try {
                     renderFile(f);
-                } catch (Exception e) {
-                    throw new IOException("Unable to render file $f: ${e.message}")
+                } catch (Exception ioException) {
+                    throw new IOException("Unable to render file $f: ${ioException.message}", ioException)
                 }
             }
         }
